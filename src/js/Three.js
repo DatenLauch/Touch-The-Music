@@ -10,14 +10,18 @@ export default class Three {
         this.ambientLight = null;
         this.cube = null;
         this.gltfloader = null;
+        this.drums = [];
+        this.hands = [];
+        this.collidingObjects = new Set();
     }
 
     async init() {
+        window.addEventListener('resize', this.#onWindowResize.bind(this));
         this.renderer = this.#initRenderer();
         document.body.appendChild(this.renderer.domElement);
 
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.set(0, 1.5, 2);
+        this.camera.position.set(0, 1.7, 0);
 
         this.scene = new THREE.Scene();
 
@@ -29,43 +33,14 @@ export default class Three {
         this.scene.add(this.directionalLight);
 
         this.gltfloader = new GLTFLoader();
-        await this.loadHands('src/assets/models/hand/hand.gltf');
-
-
-
-        this.cube = this.#createTestCube();
-        //this.cube.position.set(0, 2, -5);
-        this.cube.position.set(0, 2, 0);
-        this.cube.scale.set(0.1, 0.1, 0.1);
-        this.scene.add(this.cube);
-
-        /*this.scene.inputRenderer.setControllerMesh(new Gltf2Node({url: 'media/gltf/controller/controller.gltf'}), 'right');
-        this.scene.inputRenderer.setControllerMesh(new Gltf2Node({url: 'media/gltf/controller/controller-left.gltf'}), 'left');*/
-
-        window.addEventListener('resize', this.#onWindowResize.bind(this));
+        await this.#initHands('src/assets/models/hand/hand.gltf');
+        this.#initDrums();
     }
 
-    async loadHands(path) {
-        this.gltfloader.load(
-            path,
-            (gltf) => {
-                const model = gltf.scene;
-                this.leftHand = model;
-                this.scene.add(this.leftHand);
-
-                const mirroredModel = model.clone(); // Clone the model to avoid modifying the original
-                mirroredModel.scale.x = -1;
-                this.rightHand = mirroredModel;
-                this.scene.add(this.rightHand);
-            },
-            (xhr) => {
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-            },
-            (error) => {
-                console.error('An error happened while loading the model:', error);
-                reject(error);
-            }
-        );
+    #onWindowResize() {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
     #initRenderer() {
@@ -77,20 +52,85 @@ export default class Three {
         return renderer;
     }
 
-    #onWindowResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+    async #initHands(path) {
+        this.gltfloader.load(
+            path,
+            (gltf) => {
+                const model = gltf.scene;
+
+                this.leftHand = model;
+                this.hands.push(this.leftHand);
+                this.scene.add(this.leftHand);
+                this.leftHand.onCollision = (collider) => {
+
+                };
+                this.leftHand.onCollisionEnd = (collider) => {
+                }
+
+                const mirroredHand = model.clone();
+                mirroredHand.scale.x = -1;
+
+                this.rightHand = mirroredHand;
+                this.hands.push(this.rightHand);
+                this.scene.add(this.rightHand);
+
+                this.rightHand.onCollision = (collider) => {
+                };
+                this.rightHand.onCollisionEnd = (collider) => {
+                }
+            },
+            (xhr) => {
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+            },
+            (error) => {
+                console.error('An error happened while loading the model:', error);
+            }
+        );
     }
 
-    #createTestCube() {
-        const geometry = new THREE.BoxGeometry();
-        const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
-        const cube = new THREE.Mesh(geometry, material);
-        cube.castShadow = true;
-        cube.receiveShadow = true;
-        return cube;
+    #initDrums() {
+        const drum1 = this.createDrum(0.5, 0.1, 0.1);
+        drum1.position.set(-1.5, 1, -2);
+        drum1.outer.material.color.set(0xFF0000);
+        this.drums.push(drum1);
+        this.scene.add(drum1);
+
+        const drum2 = this.createDrum(0.5, 0.1, 0.1);
+        drum2.position.set(0, 1, -2);
+        drum2.outer.material.color.set(0x00FF00);
+        this.drums.push(drum2);
+        this.scene.add(drum2);
+
+        const drum3 = this.createDrum(0.5, 0.1, 0.1);
+        drum3.position.set(1.5, 1, -2);
+        drum3.outer.material.color.set(0x0000FF);
+        this.drums.push(drum3);
+        this.scene.add(drum3);
     }
+
+    createDrum(radius, height, width) {
+        const middleGeometry = new THREE.CylinderGeometry(radius, radius, height, 32);
+        const middleMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+        const middle = new THREE.Mesh(middleGeometry, middleMaterial);
+        middle.position.set(0, 0.001, 0);
+
+        const outerGeometry = new THREE.CylinderGeometry(radius + width, radius + width, height, 32);
+        const outerMaterial = new THREE.MeshStandardMaterial({ color: 0xFF00FF });
+        const outer = new THREE.Mesh(outerGeometry, outerMaterial);
+
+        const drum = new THREE.Group();
+        drum.add(outer);
+        drum.add(middle);
+        drum.outer = outer;
+        drum.middle = middle;
+        drum.onCollision = (collider) => {
+        };
+
+        drum.onCollisionEnd = (collider) => {
+        }
+        return drum;
+    }
+
 
     createQuaternion(x, y, z, w) {
         return new THREE.Quaternion(x, y, z, w);
@@ -98,8 +138,37 @@ export default class Three {
 
 
     update(deltaTime) {
-        if (this.cube) {
-            this.cube.rotation.y += 0.002 * deltaTime;
+
+        // collision
+        if (this.hands && this.drums) {
+            this.drums.forEach(drum => {
+                this.hands.forEach(hand => {
+                    this.#checkCollision(hand, drum);
+                });
+            });
+        }
+    }
+
+    #checkCollision(object1, object2) {
+        const box1 = new THREE.Box3().setFromObject(object1);
+        const box2 = new THREE.Box3().setFromObject(object2);
+
+        const collides = box1.intersectsBox(box2);
+        // unique key to avoid circular onCollision / onCollisionEnd activation.
+        const key = `${object1.uuid}-${object2.uuid}`;
+
+        if (collides) {
+            if (!this.collidingObjects.has(key)) {
+                this.collidingObjects.add(key);
+                object1.onCollision?.(object2);
+                object2.onCollision?.(object1);
+            }
+        } else {
+            if (this.collidingObjects.has(key)) {
+                this.collidingObjects.delete(key);
+                object1.onCollisionEnd?.(object2);
+                object2.onCollisionEnd?.(object1);
+            }
         }
     }
 

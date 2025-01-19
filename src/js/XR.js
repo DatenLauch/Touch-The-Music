@@ -69,12 +69,6 @@ export default class XR {
                 this.#updateHands(inputSource, frame);
             }
         });
-
-        if (this.three.cube.material.color.getHex() !== 0x0000ff) {
-            this.three.cube.material.color.set(0x0000ff);
-        }
-        this.three.cube.rotation.x -= 0.02;
-        this.three.cube.rotation.y -= 0.02;
     }
 
     #updateHands(inputSource, frame) {
@@ -101,7 +95,7 @@ export default class XR {
             this.three.leftHand.rotation.setFromQuaternion(quaternion); */
         }
 
-        const indexFinger = hand.get('index-finger-tip');;
+        const indexFinger = hand.get('index-finger-tip');
         const thumb = hand.get('thumb-tip');
         if (thumb && indexFinger) {
             const distance = 1;

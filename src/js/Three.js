@@ -93,24 +93,31 @@ export default class Three {
     }
 
     #initDrums() {
-        const drum1 = this.#createDrum(0.5, 0.1, 0.1, 'snare');
-        drum1.position.set(-1.5, 1, -2);
-        drum1.outer.material.color.set(0xFF0000);
-        this.drums.push(drum1);
-        this.scene.add(drum1);
+        const snare = this.#createDrum(0.5, 0.1, 0.1, 'snare');
+        snare.position.set(-0.75, 1, -2);
+        snare.outer.material.color.set(0xFF0000);
+        this.drums.push(snare);
+        this.scene.add(snare);
 
-        const drum2 = this.#createDrum(0.5, 0.1, 0.1, 'kick');
-        drum2.position.set(0, 1, -2);
-        drum2.outer.material.color.set(0x00FF00);
-        this.drums.push(drum2);
-        this.scene.add(drum2);
+        const kick = this.#createDrum(0.5, 0.1, 0.1, 'kick');
+        kick.position.set(0.75, 1, -2);
+        kick.outer.material.color.set(0x00FF00);
+        this.drums.push(kick);
+        this.scene.add(kick);
 
-        const drum3 = this.#createDrum(0.5, 0.1, 0.1, 'crash');
-        drum3.position.set(1.5, 1, -2);
-        drum3.outer.material.color.set(0x0000FF);
-        this.drums.push(drum3);
-        this.scene.add(drum3);
+        const crash = this.#createDrum(0.5, 0.1, 0.1, 'crash');
+        crash.position.set(-2.5, 1, -3);
+        crash.outer.material.color.set(0x0000FF);
+        this.drums.push(crash);
+        this.scene.add(crash);
+
+        const hihat = this.#createDrum(0.5, 0.1, 0.1, 'hihat');
+        hihat.position.set(2.5, 1, -3);
+        hihat.outer.material.color.set(0xFFFF00);
+        this.drums.push(hihat);
+        this.scene.add(hihat);
     }
+
 
     #createDrum(radius, height, width, sound) {
         const middleGeometry = new THREE.CylinderGeometry(radius, radius, height, 32);

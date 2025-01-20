@@ -29,13 +29,13 @@ class App {
         await this.three.init();
         this.systems.push(this.three);
 
-        this.ui = new UI(this.three.scene);
+        /*this.ui = new UI(this.three.scene);
         await this.ui.init();
         this.systems.push(this.ui);
 
         this.input = new Input(this.ui.testButton, this.three.camera);
         await this.input.init();
-        this.systems.push(this.input);
+        this.systems.push(this.input); */
 
         /*this.noteReader = new NoteReader(this.bpm, this.signature, this.notes);
         await this.noteReader.init();

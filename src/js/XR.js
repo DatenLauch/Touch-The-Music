@@ -76,23 +76,29 @@ export default class XR {
         const handedness = inputSource.handedness;
 
         if (handedness === 'right') {
-            let joint = hand.get('index-finger-tip');
-            let jointPose = frame.getJointPose(joint, this.referenceSpace);
-            this.three.rightHand.position.x = jointPose.transform.position.x;
-            this.three.rightHand.position.y = jointPose.transform.position.y;
-            this.three.rightHand.position.z = jointPose.transform.position.z;
+            let wristJoint = hand.get('wrist');
+            let wristPose = frame.getJointPose(wristJoint, this.referenceSpace);
+
+            this.three.rightHand.position.x = wristPose.transform.position.x;
+            this.three.rightHand.position.y = wristPose.transform.position.y;
+            this.three.rightHand.position.z = wristPose.transform.position.z;
+
+            const rotation = wristPose.transform.orientation;
+            const quaternion = this.three.createQuaternion(rotation.x, rotation.y, rotation.z, rotation.w);
+            this.three.rightHand.rotation.setFromQuaternion(quaternion);
         }
 
         if (handedness === 'left') {
-            let joint = hand.get('index-finger-tip');
-            let jointPose = frame.getJointPose(joint, this.referenceSpace);
-            this.three.leftHand.position.x = jointPose.transform.position.x;
-            this.three.leftHand.position.y = jointPose.transform.position.y;
-            this.three.leftHand.position.z = jointPose.transform.position.z;
-            /*
-            const rotation = jointPose.transform.orientation;
+            let wristJoint = hand.get('wrist');
+            let wristPose = frame.getJointPose(wristJoint, this.referenceSpace);
+
+            this.three.leftHand.position.x = wristPose.transform.position.x;
+            this.three.leftHand.position.y = wristPose.transform.position.y;
+            this.three.leftHand.position.z = wristPose.transform.position.z;
+
+            const rotation = wristPose.transform.orientation;
             const quaternion = this.three.createQuaternion(rotation.x, rotation.y, rotation.z, rotation.w);
-            this.three.leftHand.rotation.setFromQuaternion(quaternion); */
+            this.three.leftHand.rotation.setFromQuaternion(quaternion);
         }
 
         const indexFinger = hand.get('index-finger-tip');

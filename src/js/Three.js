@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import Audio from '/src/js/Audio';
 
 export default class Three {
     constructor() {
@@ -8,7 +9,7 @@ export default class Three {
         this.scene = null;
         this.directionalLight = null;
         this.ambientLight = null;
-        this.cube = null;
+        this.audio = null;
         this.gltfloader = null;
         this.drums = [];
         this.hands = [];
@@ -31,6 +32,9 @@ export default class Three {
         this.directionalLight.castShadow = true;
         this.directionalLight.position.set(1, 1, 1).normalize();
         this.scene.add(this.directionalLight);
+
+        this.audio = new Audio();
+        await this.audio.init();
 
         this.gltfloader = new GLTFLoader();
         await this.#initHands('src/assets/models/hand/hand.gltf');
@@ -89,26 +93,26 @@ export default class Three {
     }
 
     #initDrums() {
-        const drum1 = this.createDrum(0.5, 0.1, 0.1);
+        const drum1 = this.#createDrum(0.5, 0.1, 0.1, 'snare');
         drum1.position.set(-1.5, 1, -2);
         drum1.outer.material.color.set(0xFF0000);
         this.drums.push(drum1);
         this.scene.add(drum1);
 
-        const drum2 = this.createDrum(0.5, 0.1, 0.1);
+        const drum2 = this.#createDrum(0.5, 0.1, 0.1, 'kick');
         drum2.position.set(0, 1, -2);
         drum2.outer.material.color.set(0x00FF00);
         this.drums.push(drum2);
         this.scene.add(drum2);
 
-        const drum3 = this.createDrum(0.5, 0.1, 0.1);
+        const drum3 = this.#createDrum(0.5, 0.1, 0.1, 'crash');
         drum3.position.set(1.5, 1, -2);
         drum3.outer.material.color.set(0x0000FF);
         this.drums.push(drum3);
         this.scene.add(drum3);
     }
 
-    createDrum(radius, height, width) {
+    #createDrum(radius, height, width, sound) {
         const middleGeometry = new THREE.CylinderGeometry(radius, radius, height, 32);
         const middleMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
         const middle = new THREE.Mesh(middleGeometry, middleMaterial);
@@ -123,7 +127,9 @@ export default class Three {
         drum.add(middle);
         drum.outer = outer;
         drum.middle = middle;
+        drum.sound = sound;
         drum.onCollision = (collider) => {
+            this.audio.playSound(drum.sound);
         };
 
         drum.onCollisionEnd = (collider) => {

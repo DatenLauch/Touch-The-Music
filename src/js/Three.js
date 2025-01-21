@@ -147,6 +147,7 @@ export default class Three {
         };
         const position = [0.75, 5, -2];
         note.position.set(...position);
+        note.scale.set(2,2,2);
         this.notes.push(note);
         this.scene.add(note);
     }

@@ -37,7 +37,10 @@ export default class Three {
         await this.audio.init();
 
         this.gltfloader = new GLTFLoader();
-        await this.#initHands('src/assets/models/hand/hand.gltf');
+        const handModel = await this.#loadGLTFModel('src/assets/models/hand/hand.gltf');
+        this.#initHands(handModel);
+        const noteModel = await this.#loadGLTFModel('src/assets/models/hand/hand.gltf');
+        this.#initNote(noteModel);
         this.#initDrums();
     }
 
@@ -56,66 +59,62 @@ export default class Three {
         return renderer;
     }
 
-    async #initHands(path) {
-        this.gltfloader.load(
-            path,
-            (gltf) => {
-                const model = gltf.scene;
-
-                this.leftHand = model;
-                this.hands.push(this.leftHand);
-                this.scene.add(this.leftHand);
-                this.leftHand.onCollision = (collider) => {
-
-                };
-                this.leftHand.onCollisionEnd = (collider) => {
+    async #loadGLTFModel(path) {
+        return new Promise((resolve, reject) => {
+            this.gltfloader.load(
+                path,
+                (gltf) => {
+                    resolve(gltf.scene);
+                },
+                (xhr) => {
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                (error) => {
+                    console.error('An error occurred while loading the model:', error);
+                    reject(error);
                 }
+            );
+        });
+    }
 
-                const mirroredHand = model.clone();
-                mirroredHand.scale.x = -1;
+    async #initHands(handModel) {
+        this.leftHand = handModel
+        this.leftHand.onCollision = (collider) => {
+        };
+        this.leftHand.onCollisionEnd = (collider) => {
+        };
+        this.hands.push(this.leftHand);
+        this.scene.add(this.leftHand);
 
-                this.rightHand = mirroredHand;
-                this.hands.push(this.rightHand);
-                this.scene.add(this.rightHand);
-
-                this.rightHand.onCollision = (collider) => {
-                };
-                this.rightHand.onCollisionEnd = (collider) => {
-                }
-            },
-            (xhr) => {
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-            },
-            (error) => {
-                console.error('An error happened while loading the model:', error);
-            }
-        );
+        this.rightHand = handModel.clone();
+        this.rightHand.scale.x = -1;
+        this.rightHand.onCollision = (collider) => {
+        };
+        this.rightHand.onCollisionEnd = (collider) => {
+        };
+        this.hands.push(this.rightHand);
+        this.scene.add(this.rightHand);
     }
 
     #initDrums() {
-        const snare = this.#createDrum(0.5, 0.1, 0.1, 'snare');
-        snare.position.set(-0.75, 1, -2);
-        snare.outer.material.color.set(0xFF0000);
-        this.drums.push(snare);
-        this.scene.add(snare);
+        const drumConfigs = [
+            { position: [-0.75, 1, -2], color: 0xFF0000, sound: 'snare' },
+            { position: [0.75, 1, -2], color: 0x00FF00, sound: 'kick' },
+            { position: [-2.5, 1, -3], color: 0x0000FF, sound: 'crash' },
+            { position: [2.5, 1, -3], color: 0xFFFF00, sound: 'hihat' },
+        ];
 
-        const kick = this.#createDrum(0.5, 0.1, 0.1, 'kick');
-        kick.position.set(0.75, 1, -2);
-        kick.outer.material.color.set(0x00FF00);
-        this.drums.push(kick);
-        this.scene.add(kick);
+        drumConfigs.forEach(({ position, color, sound }) => {
+            const drum = this.#createDrum(0.5, 0.1, 0.1, sound);
+            drum.position.set(...position);
+            drum.outer.material.color.set(color);
+            this.drums.push(drum);
+            this.scene.add(drum);
+        });
+    }
 
-        const crash = this.#createDrum(0.5, 0.1, 0.1, 'crash');
-        crash.position.set(-2.5, 1, -3);
-        crash.outer.material.color.set(0x0000FF);
-        this.drums.push(crash);
-        this.scene.add(crash);
+    #initNote() {
 
-        const hihat = this.#createDrum(0.5, 0.1, 0.1, 'hihat');
-        hihat.position.set(2.5, 1, -3);
-        hihat.outer.material.color.set(0xFFFF00);
-        this.drums.push(hihat);
-        this.scene.add(hihat);
     }
 
 
@@ -168,7 +167,7 @@ export default class Three {
 
         const collides = box1.intersectsBox(box2);
         // unique key to avoid circular onCollision / onCollisionEnd activation.
-        const key = `${object1.uuid}-${object2.uuid}`;
+        const key = object1.uuid + "" + object2.uuid;
 
         if (collides) {
             if (!this.collidingObjects.has(key)) {

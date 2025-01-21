@@ -13,6 +13,7 @@ export default class Three {
         this.gltfloader = null;
         this.drums = [];
         this.hands = [];
+        this.notes = [];
         this.collidingObjects = new Set();
     }
 
@@ -39,7 +40,7 @@ export default class Three {
         this.gltfloader = new GLTFLoader();
         const handModel = await this.#loadGLTFModel('src/assets/models/hand/hand.gltf');
         this.#initHands(handModel);
-        const noteModel = await this.#loadGLTFModel('src/assets/models/hand/hand.gltf');
+        const noteModel = await this.#loadGLTFModel('src/assets/models/note/note.gltf');
         this.#initNote(noteModel);
         this.#initDrums();
     }
@@ -78,7 +79,7 @@ export default class Three {
     }
 
     async #initHands(handModel) {
-        this.leftHand = handModel
+        this.leftHand = handModel;
         this.leftHand.onCollision = (collider) => {
         };
         this.leftHand.onCollisionEnd = (collider) => {
@@ -113,11 +114,6 @@ export default class Three {
         });
     }
 
-    #initNote() {
-
-    }
-
-
     #createDrum(radius, height, width, sound) {
         const middleGeometry = new THREE.CylinderGeometry(radius, radius, height, 32);
         const middleMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
@@ -143,6 +139,17 @@ export default class Three {
         return drum;
     }
 
+    #initNote(noteModel) {
+        const note = noteModel;
+        note.onCollision = (collider) => {
+        };
+        note.onCollisionEnd = (collider) => {
+        };
+        const position = [0.75, 5, -2];
+        note.position.set(...position);
+        this.notes.push(note);
+        this.scene.add(note);
+    }
 
     createQuaternion(x, y, z, w) {
         return new THREE.Quaternion(x, y, z, w);
@@ -150,13 +157,18 @@ export default class Three {
 
 
     update(deltaTime) {
-
         // collision
         if (this.hands && this.drums) {
             this.drums.forEach(drum => {
                 this.hands.forEach(hand => {
                     this.#checkCollision(hand, drum);
                 });
+            });
+        }
+        if (this.notes) {
+            this.notes.forEach(note => {
+                //0.001 seems good
+                note.position.y = note.position.y - deltaTime * 0.0005
             });
         }
     }

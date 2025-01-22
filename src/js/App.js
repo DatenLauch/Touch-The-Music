@@ -2,6 +2,7 @@ import Three from '/src/js/Three.js';
 import XR from '/src/js/XR.js';
 import UI from '/src/js/UI';
 import Input from '/src/js/Input';
+import Score from '/src/js/Score';
 import NoteReader from '/src/js/NoteReader';
 import { track1 } from './tracks/track1.js';
 

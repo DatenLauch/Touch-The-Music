@@ -11,9 +11,10 @@ export default class Three {
         this.ambientLight = null;
         this.audio = null;
         this.gltfloader = null;
-        this.drums = [];
+        this.noteModel = null;
+        this.handModel = null;
         this.hands = [];
-        this.notes = [];
+        this.drums = new Map;
         this.collidingObjects = new Set();
     }
 
@@ -38,10 +39,10 @@ export default class Three {
         await this.audio.init();
 
         this.gltfloader = new GLTFLoader();
-        const handModel = await this.#loadGLTFModel('src/assets/models/hand/hand.gltf');
-        this.#initHands(handModel);
-        const noteModel = await this.#loadGLTFModel('src/assets/models/note/note.gltf');
-        this.#initNote(noteModel);
+        this.handModel = await this.#loadGLTFModel('src/assets/models/hand/hand.gltf');
+        this.#initHands();
+
+        this.noteModel = await this.#loadGLTFModel('src/assets/models/note/note.gltf');
         this.#initDrums();
     }
 
@@ -78,8 +79,9 @@ export default class Three {
         });
     }
 
-    async #initHands(handModel) {
-        this.leftHand = handModel;
+    async #initHands() {
+        this.leftHand = this.handModel;
+        this.leftHand.name = "leftHand";
         this.leftHand.onCollision = (collider) => {
         };
         this.leftHand.onCollisionEnd = (collider) => {
@@ -87,8 +89,9 @@ export default class Three {
         this.hands.push(this.leftHand);
         this.scene.add(this.leftHand);
 
-        this.rightHand = handModel.clone();
+        this.rightHand = this.handModel.clone();
         this.rightHand.scale.x = -1;
+        this.rightHand.name = "rightHand";
         this.rightHand.onCollision = (collider) => {
         };
         this.rightHand.onCollisionEnd = (collider) => {
@@ -109,7 +112,7 @@ export default class Three {
             const drum = this.#createDrum(0.5, 0.1, 0.1, sound);
             drum.position.set(...position);
             drum.outer.material.color.set(color);
-            this.drums.push(drum);
+            this.drums.set(sound, drum);
             this.scene.add(drum);
         });
     }
@@ -130,49 +133,82 @@ export default class Three {
         drum.outer = outer;
         drum.middle = middle;
         drum.sound = sound;
+        drum.name = sound;
+        drum.notes = [];
         drum.onCollision = (collider) => {
-            this.audio.playSound(drum.sound);
+            if (collider.name === ("leftHand" || "rightHand")) {
+                this.audio.playSound(drum.sound);
+            }
         };
-
         drum.onCollisionEnd = (collider) => {
         }
         return drum;
     }
 
-    #initNote(noteModel) {
-        const note = noteModel;
+    initNote(position, drum) {
+        const note = this.noteModel.clone(true);
+        note.drum = drum;
+        note.name = drum.name;
+        note.position.set(...position);
+        note.scale.set(2, 2, 2);
         note.onCollision = (collider) => {
         };
         note.onCollisionEnd = (collider) => {
+            console.log("miss!");
+            note.destroy();
+
         };
-        const position = [0.75, 5, -2];
-        note.position.set(...position);
-        note.scale.set(2,2,2);
-        this.notes.push(note);
-        this.scene.add(note);
+        note.destroy = () => {
+            note.drum.notes = note.drum.notes.filter(otherNotes => otherNotes.id !== note.id);
+            this.scene.remove(note);
+            note.traverse((child) => {
+                if (child.isMesh) {
+                    child.geometry.dispose();
+                    if (child.material) {
+                        child.material.dispose();
+                    }
+                }
+            });
+        }
+        return note;
     }
 
     createQuaternion(x, y, z, w) {
         return new THREE.Quaternion(x, y, z, w);
     }
 
-
     update(deltaTime) {
-        // collision
+        // Hand and Drum
         if (this.hands && this.drums) {
-            this.drums.forEach(drum => {
-                this.hands.forEach(hand => {
-                    this.#checkCollision(hand, drum);
+            this.hands.forEach(hand => {
+                this.drums.forEach(drum => {
+                    const handOnDrum = this.#checkCollision(hand, drum);
+                    if (handOnDrum) {
+                        drum.notes.forEach(note => {
+                            const drumHasNote = this.#checkCollision(drum, note);
+                            if (drumHasNote) {
+                                console.log("hit!");
+                                note.destroy();
+                            }
+                        });
+                    }
                 });
             });
         }
-        if (this.notes) {
-            this.notes.forEach(note => {
-                //0.001 seems good
-                note.position.y = note.position.y - deltaTime * 0.0005
+
+        // Drum and Note 
+        if (this.drums) {
+            this.drums.forEach((drum, drumName) => {
+                if (drum.notes) {
+                    drum.notes.forEach(note => {
+                        this.#checkCollision(drum, note);
+                        note.position.y -= deltaTime * 0.002
+                    });
+                }
             });
         }
     }
+
 
     #checkCollision(object1, object2) {
         const box1 = new THREE.Box3().setFromObject(object1);
@@ -195,6 +231,7 @@ export default class Three {
                 object2.onCollisionEnd?.(object1);
             }
         }
+        return collides;
     }
 
     render() {

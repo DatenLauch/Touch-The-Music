@@ -2,10 +2,10 @@ import Three from '/src/js/Three.js';
 import XR from '/src/js/XR.js';
 import UI from '/src/js/UI';
 import Input from '/src/js/Input';
-//import NoteReader from '/src/NoteReader';
+import NoteReader from '/src/js/NoteReader';
+import { track1 } from './track1.js';
 
 class App {
-
     constructor() {
         this.three = null;
         this.xr = null;
@@ -15,13 +15,6 @@ class App {
         this.systems = [];
         this.previousTime = 0;
         this.update = this.#update.bind(this);
-        this.bpm = 120;
-        this.signature = { beatsPerMeasure: 4, beatType: 4 };
-        this.notes = {
-            hihat: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5],
-            kick: [1, 2, 3, 4, 5],
-            snare: [1.5, 2.5, 3.5, 4.5, 5.5],
-        }
     }
 
     async init() {
@@ -37,9 +30,9 @@ class App {
         await this.input.init();
         this.systems.push(this.input); */
 
-        /*this.noteReader = new NoteReader(this.bpm, this.signature, this.notes);
+        this.noteReader = new NoteReader(this.three, track1);
         await this.noteReader.init();
-        this.systems.push(this.noteReader);*/
+        this.systems.push(this.noteReader);
 
         if (navigator.xr) {
             this.xr = new XR(this.three);

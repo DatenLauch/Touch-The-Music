@@ -3,7 +3,7 @@ import XR from '/src/js/XR.js';
 import UI from '/src/js/UI';
 import Input from '/src/js/Input';
 import NoteReader from '/src/js/NoteReader';
-import { track1 } from './track1.js';
+import { track1 } from './tracks/track1.js';
 
 class App {
     constructor() {

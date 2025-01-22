@@ -118,7 +118,7 @@ export default class NoteReader {
 
   stop() {
     this.isRunning = false;
-    console.log("a");
+    console.log("stop");
   }
 
   update(deltaTime) {

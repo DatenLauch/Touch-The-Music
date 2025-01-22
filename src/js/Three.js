@@ -154,7 +154,7 @@ export default class Three {
         note.onCollision = (collider) => {
         };
         note.onCollisionEnd = (collider) => {
-            console.log("miss!");
+            console.log(this.score);
             note.destroy();
 
         };

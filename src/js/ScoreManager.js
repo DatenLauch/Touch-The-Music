@@ -13,6 +13,7 @@ export default class ScoreManager {
         this.late = 0;
         this.miss = 0;
 
+        this.highestCombo = 0;
         this.totalHits = 0;
     }
 
@@ -76,6 +77,9 @@ export default class ScoreManager {
     }
 
     resetCombo() {
+        if (this.combo > this.highestCombo){
+            this.highestCombo = this.combo;
+        }
         this.combo = 0;
     }
 

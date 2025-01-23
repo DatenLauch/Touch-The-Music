@@ -15,18 +15,7 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Note3_Note_0",
-			"rotation":[
-				-0.5,
-				-0.5,
-				-0.5,
-				0.5
-			],
-			"translation":[
-				0.002184665761888027,
-				0.12376615405082703,
-				0
-			]
+			"name":"Note3_Note_0"
 		}
 	],
 	"materials":[
@@ -64,29 +53,29 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":1655,
+			"count":1659,
 			"max":[
-				0.043136510998010635,
-				0.12520097196102142,
-				0.3021557629108429
+				0.2942785322666168,
+				0.9848664402961731,
+				0.10063748061656952
 			],
 			"min":[
-				-0.04313642904162407,
-				-0.10294003784656525,
-				-0.1212763860821724
+				-0.23797444999217987,
+				-0.003000706434249878,
+				-0.100637286901474
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":1655,
+			"count":1659,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":1655,
+			"count":1659,
 			"type":"VEC2"
 		},
 		{
@@ -99,32 +88,32 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":19860,
+			"byteLength":19908,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":19860,
-			"byteOffset":19860,
+			"byteLength":19908,
+			"byteOffset":19908,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":13240,
-			"byteOffset":39720,
+			"byteLength":13272,
+			"byteOffset":39816,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":8904,
-			"byteOffset":52960,
+			"byteOffset":53088,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":61864,
+			"byteLength":61992,
 			"uri":"note.bin"
 		}
 	]

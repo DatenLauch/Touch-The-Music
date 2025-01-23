@@ -2,8 +2,8 @@ import Three from '/src/js/Three.js';
 import XR from '/src/js/XR.js';
 import UI from '/src/js/UI';
 import Input from '/src/js/Input';
-import Score from '/src/js/Score';
-import NoteReader from '/src/js/NoteReader';
+import ScoreManager from '/src/js/ScoreManager';
+import NoteManager from '/src/js/NoteManager';
 import { Track1 } from './tracks/track1.js';
 import { Difficulty } from './Difficulty.js';
 
@@ -20,22 +20,23 @@ class App {
     }
 
     async init() {
-        this.score = new Score();
 
-        this.three = new Three(this.score, Difficulty.easy);
+        /*this.ui = new UI();
+        this.ui.init();*/
+
+        this.scoreManager = new ScoreManager();
+        this.scoreManager.init();
+
+        this.three = new Three(this.scoreManager, Difficulty.easy);
         await this.three.init();
         this.systems.push(this.three);
 
-        this.noteReader = new NoteReader(this.three, Track1);
-        await this.noteReader.init();
-        this.noteReader.loadTrack(Track1);
-        this.systems.push(this.noteReader);
+        this.noteManager = new NoteManager(this.three, Track1);
+        this.noteManager.init();
+        this.noteManager.loadTrack(Track1);
+        this.systems.push(this.noteManager);
 
-        /*this.ui = new UI(this.three.scene);
-        await this.ui.init();
-        this.systems.push(this.ui);
-
-        this.input = new Input(this.ui.testButton, this.three.camera);
+        /*this.input = new Input(this.ui.testButton, this.three.camera);
         await this.input.init();
         this.systems.push(this.input); */
 
@@ -60,14 +61,14 @@ class App {
         if (isArSupported) {
             const arButton = await this.#createButton('Start AR', async () => {
                 await this.xr.initAR();
-                this.noteReader.start();
+                this.noteManager.start();
             });
             container.append(arButton);
         }
         if (isVrSupported) {
             const vrButton = await this.#createButton('Start VR', async () => {
                 await this.xr.initVR();
-                this.noteReader.start();
+                this.noteManager.start();
             });
             container.append(vrButton);
         }

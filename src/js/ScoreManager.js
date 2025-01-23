@@ -1,4 +1,4 @@
-export default class Score {
+export default class ScoreManager {
     constructor() {
         this.earlyValue = 0;
         this.perfectValue = 0;

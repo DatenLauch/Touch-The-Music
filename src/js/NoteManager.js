@@ -1,4 +1,4 @@
-export default class NoteReader {
+export default class NoteManager {
   constructor(three) {
     this.three = three;
     this.track = {};
@@ -17,7 +17,7 @@ export default class NoteReader {
     this.totalPausedDuration = 0;
   }
 
-  async init() {
+  init() {
     this.noteSpawnHeight = 5;
     document.addEventListener('visibilitychange', this.#onVisibilityChange.bind(this));
   }
@@ -66,7 +66,6 @@ export default class NoteReader {
       this.totalPausedDuration += performance.now() - this.pauseStart;
     }
   }
-
 
   // converts notes from beat notation into milliseconds based on bpm
   #convertNotes(beatDuration, notes) {

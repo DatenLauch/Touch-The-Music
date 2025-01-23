@@ -3,14 +3,14 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import Audio from '/src/js/Audio';
 
 export default class Three {
-    constructor(score, difficulty) {
+    constructor(scoreManager, difficulty) {
         this.renderer = null;
         this.camera = null;
         this.scene = null;
         this.directionalLight = null;
         this.ambientLight = null;
         this.audio = null;
-        this.score = score;
+        this.scoreManager = scoreManager;
         this.gltfloader = null;
         this.noteModel = null;
         this.handModel = null;
@@ -165,7 +165,7 @@ export default class Three {
         };
         note.destroy = () => {
             this.scene.remove(note.helper);
-            this.score.processHit("miss");
+            this.scoreManager.processHit("miss");
             note.drum.notes = note.drum.notes.filter(otherNotes => otherNotes.id !== note.id);
             this.scene.remove(note);
             note.traverse((child) => {
@@ -212,19 +212,19 @@ export default class Three {
                                 const positionDifference = note.position.y - drum.position.y;
                                 console.log(positionDifference);
                                 if (Math.abs(positionDifference) < this.hitLeniency) {
-                                    this.score.processHit("perfect");
+                                    this.scoreManager.processHit("perfect");
                                     console.log("perfect");
                                     note.destroy();
                                     return;
                                 }
                                 else if (positionDifference > 0) {
-                                    this.score.processHit("early");
+                                    this.scoreManager.processHit("early");
                                     console.log("early");
                                     note.destroy();
                                     return;
                                 }
                                 else if (positionDifference < 0) {
-                                    this.score.processHit("late");
+                                    this.scoreManager.processHit("late");
                                     console.log("late");
                                     note.destroy();
                                     return;

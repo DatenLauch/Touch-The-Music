@@ -4,7 +4,8 @@ import UI from '/src/js/UI';
 import Input from '/src/js/Input';
 import Score from '/src/js/Score';
 import NoteReader from '/src/js/NoteReader';
-import { track1 } from './tracks/track1.js';
+import { Track1 } from './tracks/track1.js';
+import { Difficulty } from './Difficulty.js';
 
 class App {
     constructor() {
@@ -21,13 +22,13 @@ class App {
     async init() {
         this.score = new Score();
 
-        this.three = new Three(this.score);
+        this.three = new Three(this.score, Difficulty.easy);
         await this.three.init();
         this.systems.push(this.three);
 
-        this.noteReader = new NoteReader(this.three, track1);
+        this.noteReader = new NoteReader(this.three, Track1);
         await this.noteReader.init();
-        this.noteReader.loadTrack(track1);
+        this.noteReader.loadTrack(Track1);
         this.systems.push(this.noteReader);
 
         /*this.ui = new UI(this.three.scene);

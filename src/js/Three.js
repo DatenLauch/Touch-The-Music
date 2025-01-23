@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import Audio from '/src/js/Audio';
 
 export default class Three {
-    constructor(score) {
+    constructor(score, difficulty) {
         this.renderer = null;
         this.camera = null;
         this.scene = null;
@@ -17,7 +17,8 @@ export default class Three {
         this.hands = [];
         this.drums = new Map;
         this.collidingObjects = new Set();
-        this.hitLeniency = 0;
+        this.fallSpeed = difficulty.fallSpeed;
+        this.hitLeniency = difficulty.hitLeniency;
     }
 
     async init() {
@@ -46,7 +47,6 @@ export default class Three {
 
         this.noteModel = await this.#loadGLTFModel('src/assets/models/note/note.gltf');
         this.#initDrums();
-        this.hitLeniency = 0.25;
     }
 
     #onWindowResize() {
@@ -149,10 +149,14 @@ export default class Three {
     }
 
     initNote(position, drum) {
-        const note = this.noteModel.clone(true);
+        let note = this.noteModel.clone(true);
         note.drum = drum;
-        note.name = drum.name;
+        note.name = "note";
         note.position.set(...position);
+        note.boundingBox = this.#extendBoundingBoxDownwards(note);
+        note.helper = new THREE.Box3Helper(note.boundingBox, 0xff0000);
+        this.scene.add(note.helper);
+
         note.onCollision = (collider) => {
         };
         note.onCollisionEnd = (collider) => {
@@ -160,7 +164,7 @@ export default class Three {
 
         };
         note.destroy = () => {
-            console.log("miss");
+            this.scene.remove(note.helper);
             this.score.processHit("miss");
             note.drum.notes = note.drum.notes.filter(otherNotes => otherNotes.id !== note.id);
             this.scene.remove(note);
@@ -172,6 +176,13 @@ export default class Three {
                     }
                 }
             });
+            note.onCollision = null;
+            note.onCollisionEnd = null;
+            note.boundingBox = null;
+            note.helper = null;
+            note.drum = null;
+            note.name = null;
+            note = null;
         }
         return note;
     }
@@ -180,8 +191,16 @@ export default class Three {
         return new THREE.Quaternion(x, y, z, w);
     }
 
+    #extendBoundingBoxDownwards(object) {
+        const boundingBox = new THREE.Box3().setFromObject(object);
+        const objectHeight = boundingBox.max.y - boundingBox.min.y;
+        boundingBox.max.y += objectHeight / 2;
+        boundingBox.min.y -= objectHeight / 2;
+        return boundingBox;
+    }
+
     update(deltaTime) {
-        // Hand and Drum
+        // Check if any hand touches a drum and if that drum also happens to have a note on it
         if (this.hands && this.drums) {
             this.hands.forEach(hand => {
                 this.drums.forEach(drum => {
@@ -196,16 +215,19 @@ export default class Three {
                                     this.score.processHit("perfect");
                                     console.log("perfect");
                                     note.destroy();
+                                    return;
                                 }
                                 else if (positionDifference > 0) {
                                     this.score.processHit("early");
                                     console.log("early");
                                     note.destroy();
+                                    return;
                                 }
                                 else if (positionDifference < 0) {
                                     this.score.processHit("late");
                                     console.log("late");
                                     note.destroy();
+                                    return;
                                 }
 
                             }
@@ -215,13 +237,13 @@ export default class Three {
             });
         }
 
-        // Drum and Note 
+        
         if (this.drums) {
             this.drums.forEach((drum, drumName) => {
                 if (drum.notes) {
                     drum.notes.forEach(note => {
-                        this.#checkCollision(drum, note);
-                        note.position.y -= deltaTime * 0.002
+                        this.#checkCollision(note, drum);
+                        note.position.y -= deltaTime * this.fallSpeed;
                     });
                 }
             });
@@ -230,7 +252,15 @@ export default class Three {
 
 
     #checkCollision(object1, object2) {
-        const box1 = new THREE.Box3().setFromObject(object1);
+        let box1;
+        if (object1.name === "note") {
+            box1 = this.#extendBoundingBoxDownwards(object1);
+            object1.boundingBox = box1;
+            object1.helper.box.copy(box1);
+        }
+        else {
+            box1 = new THREE.Box3().setFromObject(object1);
+        }
         const box2 = new THREE.Box3().setFromObject(object2);
 
         const collides = box1.intersectsBox(box2);

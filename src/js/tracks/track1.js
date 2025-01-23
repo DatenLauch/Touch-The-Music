@@ -1,4 +1,4 @@
-export const track1 = Object.freeze({
+export const Track1 = Object.freeze({
     bpm: 60,
     signature: {
         beatsPerMeasure: 4,

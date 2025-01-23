@@ -1,52 +1,60 @@
-import Three from '/src/js/Three.js';
-import XR from '/src/js/XR.js';
-import UI from '/src/js/UI';
-import Input from '/src/js/Input';
+import UIManager from '/src/js/UIManager';
+import AudioManager from '/src/js/AudioManager';
+import ThreeManager from '/src/js/ThreeManager.js';
+import XRManager from '/src/js/XRManager.js';
+import InputManager from '/src/js/InputManager';
 import ScoreManager from '/src/js/ScoreManager';
 import NoteManager from '/src/js/NoteManager';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Track1 } from './tracks/track1.js';
-import { Difficulty } from './Difficulty.js';
+import { DifficultySettings } from './DifficultySettings.js';
 
 class App {
     constructor() {
-        this.three = null;
-        this.xr = null;
-        this.ui = null;
-        this.input = null;
-        this.notes = null;
+        this.uiManager = null;
+        this.audioManager = null;
+        this.inputManager = null;
+        this.threeManager = null;
+        this.scoreManager = null;
+        this.noteManager = null;
+        this.xrManager = null;
         this.systems = [];
         this.previousTime = 0;
         this.update = this.#update.bind(this);
     }
 
     async init() {
+        this.uiManager = new UIManager();
+        this.uiManager.init();
 
-        /*this.ui = new UI();
-        this.ui.init();*/
+        this.audioManager = new AudioManager();
+        await this.audioManager.init();
 
         this.scoreManager = new ScoreManager();
         this.scoreManager.init();
 
-        this.three = new Three(this.scoreManager, Difficulty.easy);
-        await this.three.init();
-        this.systems.push(this.three);
+        this.gltfloader = new GLTFLoader();
 
-        this.noteManager = new NoteManager(this.three, Track1);
+        this.threeManager = new ThreeManager(this.uiManager, this.audioManager, this.scoreManager, this.gltfloader, DifficultySettings.easy);
+        await this.threeManager.init();
+        this.systems.push(this.threeManager);
+
+        this.noteManager = new NoteManager(this.threeManager, Track1);
         this.noteManager.init();
         this.noteManager.loadTrack(Track1);
         this.systems.push(this.noteManager);
 
-        /*this.input = new Input(this.ui.testButton, this.three.camera);
-        await this.input.init();
-        this.systems.push(this.input); */
+        /*this.inputManager = new InputManager(this.ui.testButton, this.threeManager.camera);
+        await this.inputManager.init();
+        this.systems.push(this.inputManager); */
 
         if (navigator.xr) {
-            this.xr = new XR(this.three);
+            this.xrManager = new XRManager(this.threeManager);
             let xrButtonContainer = await this.#createXRButtons();
             if (xrButtonContainer) {
                 document.body.append(xrButtonContainer);
             }
-            this.systems.push(this.xr);
+            this.systems.push(this.xrManager);
         }
         requestAnimationFrame(this.update);
     }
@@ -60,14 +68,14 @@ class App {
         }
         if (isArSupported) {
             const arButton = await this.#createButton('Start AR', async () => {
-                await this.xr.initAR();
+                await this.xrManager.initAR();
                 this.noteManager.start();
             });
             container.append(arButton);
         }
         if (isVrSupported) {
             const vrButton = await this.#createButton('Start VR', async () => {
-                await this.xr.initVR();
+                await this.xrManager.initVR();
                 this.noteManager.start();
             });
             container.append(vrButton);
@@ -96,10 +104,10 @@ class App {
         this.previousTime = time;
 
         this.systems.forEach(system => system.update(deltaTime, frame));
-        this.three.render();
+        this.threeManager.render();
 
-        if (this.xr?.session) {
-            this.xr.session.requestAnimationFrame(this.update);
+        if (this.xrManager?.session) {
+            this.xrManager.session.requestAnimationFrame(this.update);
         }
         else
             requestAnimationFrame(this.update);

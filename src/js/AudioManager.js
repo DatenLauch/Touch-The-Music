@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export default class Audio {
+export default class AudioManager {
     constructor() {
         this.listener = null;
         this.loader = null;

@@ -1,4 +1,4 @@
-export const Difficulty = Object.freeze({
+export const DifficultySettings = Object.freeze({
     easy: {
         fallSpeed: 0.002,
         hitLeniency: 0.5,

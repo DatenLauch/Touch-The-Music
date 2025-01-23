@@ -1,24 +1,24 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import Audio from '/src/js/Audio';
+export default class ThreeManager {
+    constructor(uiManager, audioManager, scoreManager, gltfLoader, difficultySettings) {
+        this.uiManager = uiManager
+        this.audioManager = audioManager;
+        this.scoreManager = scoreManager;
+        this.gltfLoader = gltfLoader;
+        this.difficultySettings = difficultySettings;
 
-export default class Three {
-    constructor(scoreManager, difficulty) {
+        this.fallSpeed = this.difficultySettings.fallSpeed;
+        this.hitLeniency = this.difficultySettings.hitLeniency;
         this.renderer = null;
         this.camera = null;
         this.scene = null;
         this.directionalLight = null;
         this.ambientLight = null;
-        this.audio = null;
-        this.scoreManager = scoreManager;
-        this.gltfloader = null;
         this.noteModel = null;
         this.handModel = null;
         this.hands = [];
         this.drums = new Map;
         this.collidingObjects = new Set();
-        this.fallSpeed = difficulty.fallSpeed;
-        this.hitLeniency = difficulty.hitLeniency;
     }
 
     async init() {
@@ -37,11 +37,7 @@ export default class Three {
         this.directionalLight.castShadow = true;
         this.directionalLight.position.set(1, 1, 1).normalize();
         this.scene.add(this.directionalLight);
-
-        this.audio = new Audio();
-        await this.audio.init();
-
-        this.gltfloader = new GLTFLoader();
+        
         this.handModel = await this.#loadGLTFModel('src/assets/models/hand/hand.gltf');
         this.#initHands();
 
@@ -66,7 +62,7 @@ export default class Three {
 
     async #loadGLTFModel(path) {
         return new Promise((resolve, reject) => {
-            this.gltfloader.load(
+            this.gltfLoader.load(
                 path,
                 (gltf) => {
                     resolve(gltf.scene);
@@ -140,7 +136,7 @@ export default class Three {
         drum.notes = [];
         drum.onCollision = (collider) => {
             if (collider.name === ("leftHand" || "rightHand")) {
-                this.audio.playSound(drum.sound);
+                this.audioManager.playSound(drum.sound);
             }
         };
         drum.onCollisionEnd = (collider) => {

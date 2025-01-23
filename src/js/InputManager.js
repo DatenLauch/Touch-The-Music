@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export default class Input {
+export default class InputManager {
 
     constructor(button, camera) {
         this.button = button;

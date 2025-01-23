@@ -1,7 +1,7 @@
-export default class XR {
+export default class XRManager {
 
-    constructor(three) {
-        this.three = three;
+    constructor(threeManager) {
+        this.threeManager = threeManager;
         this.session = null;
         this.previousTime = 0;
         this.inputSources = [];
@@ -35,8 +35,8 @@ export default class XR {
     }
 
     async #initSession() {
-        this.three.renderer.xr.enabled = true;
-        await this.three.renderer.xr.setSession(this.session);
+        this.threeManager.renderer.xr.enabled = true;
+        await this.threeManager.renderer.xr.setSession(this.session);
         this.referenceSpace = await this.session.requestReferenceSpace('local-floor');
         this.session.addEventListener('end', this.#onSessionEnded.bind(this));
         this.session.addEventListener('inputsourceschange', this.#onInputSourcesChange.bind(this));
@@ -46,8 +46,8 @@ export default class XR {
         this.session.removeEventListener('inputsourceschange', this.#onInputSourcesChange);
         this.session.removeEventListener('end', this.#onSessionEnded);
         this.session = null;
-        await this.three.renderer.xr.setSession(this.session);
-        this.three.renderer.xr.enabled = false;
+        await this.threeManager.renderer.xr.setSession(this.session);
+        this.threeManager.renderer.xr.enabled = false;
         console.log("XR Session ended: " + event);
     }
 
@@ -79,26 +79,26 @@ export default class XR {
             let wristJoint = hand.get('wrist');
             let wristPose = frame.getJointPose(wristJoint, this.referenceSpace);
 
-            this.three.rightHand.position.x = wristPose.transform.position.x;
-            this.three.rightHand.position.y = wristPose.transform.position.y;
-            this.three.rightHand.position.z = wristPose.transform.position.z;
+            this.threeManager.rightHand.position.x = wristPose.transform.position.x;
+            this.threeManager.rightHand.position.y = wristPose.transform.position.y;
+            this.threeManager.rightHand.position.z = wristPose.transform.position.z;
 
             const rotation = wristPose.transform.orientation;
-            const quaternion = this.three.createQuaternion(rotation.x, rotation.y, rotation.z, rotation.w);
-            this.three.rightHand.rotation.setFromQuaternion(quaternion);
+            const quaternion = this.threeManager.createQuaternion(rotation.x, rotation.y, rotation.z, rotation.w);
+            this.threeManager.rightHand.rotation.setFromQuaternion(quaternion);
         }
 
         if (handedness === 'left') {
             let wristJoint = hand.get('wrist');
             let wristPose = frame.getJointPose(wristJoint, this.referenceSpace);
 
-            this.three.leftHand.position.x = wristPose.transform.position.x;
-            this.three.leftHand.position.y = wristPose.transform.position.y;
-            this.three.leftHand.position.z = wristPose.transform.position.z;
+            this.threeManager.leftHand.position.x = wristPose.transform.position.x;
+            this.threeManager.leftHand.position.y = wristPose.transform.position.y;
+            this.threeManager.leftHand.position.z = wristPose.transform.position.z;
 
             const rotation = wristPose.transform.orientation;
-            const quaternion = this.three.createQuaternion(rotation.x, rotation.y, rotation.z, rotation.w);
-            this.three.leftHand.rotation.setFromQuaternion(quaternion);
+            const quaternion = this.threeManager.createQuaternion(rotation.x, rotation.y, rotation.z, rotation.w);
+            this.threeManager.leftHand.rotation.setFromQuaternion(quaternion);
         }
 
         const indexFinger = hand.get('index-finger-tip');

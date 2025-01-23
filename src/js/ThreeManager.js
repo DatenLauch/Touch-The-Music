@@ -167,7 +167,7 @@ export default class ThreeManager {
         drum.add(middle);
         drum.add(hitSplash);
         drum.onCollision = (collider) => {
-            if (collider.name === ("leftHand" || "rightHand")) {
+            if ((collider.name === "leftHand" || collider.name === "rightHand")) {
                 this.audioManager.playSound(drum.name);
             }
         };

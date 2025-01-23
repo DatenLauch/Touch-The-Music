@@ -28,21 +28,21 @@ export default class ScoreManager {
         switch (hit) {
             case ("early"):
                 this.early++
-                this.combo++;
+                this.increaseCombo();
                 this.increasePoints(this.earlyValue);
                 this.calculateAccuracy();
                 break;
 
             case ("perfect"):
                 this.perfect++
-                this.combo++;
+                this.increaseCombo();
                 this.increasePoints(this.perfectValue);
                 this.calculateAccuracy();
                 break;
 
             case ("late"):
                 this.late++
-                this.combo++;
+                this.increaseCombo();
                 this.increasePoints(this.lateValue);
                 this.calculateAccuracy();
                 break;
@@ -73,6 +73,13 @@ export default class ScoreManager {
         }
         if (this.combo === 0) {
             this.points += hitValue;
+        }
+    }
+
+    increaseCombo(){
+        this.combo++;
+        if  (this.combo > this.highestCombo) {
+            this.highestCombo = this.combo;
         }
     }
 

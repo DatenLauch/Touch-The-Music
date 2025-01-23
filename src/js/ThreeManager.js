@@ -155,7 +155,6 @@ export default class ThreeManager {
         const hitSplash = this.uiManager.createText("");
         hitSplash.position.set(0, height / 2 + 0.001, height * 2 - 0.05);
         hitSplash.lookAt(0, 5, (height * 2 + 0.2)); 
-        //hitSplash.rotation.set(Math.PI / 2, 0, 0);
 
         const drum = new THREE.Group();
         drum.hitSplash = hitSplash;

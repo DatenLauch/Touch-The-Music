@@ -1,7 +1,7 @@
 export default class NoteReader {
-  constructor(three, track) {
+  constructor(three) {
     this.three = three;
-    this.track = track;
+    this.track = {};
     this.drumsMap = three.drums;
     this.bpm = null;
     this.signature = {};
@@ -9,7 +9,8 @@ export default class NoteReader {
     this.notesByTime = {};
     this.notesByTimeRemaining = {};
     this.startTime = null;
-    this.noteFallHeight = null;
+    this.noteSpawnHeight = null;
+    this.hasStarted = false;
     this.isRunning = false;
     this.isPaused = false;
     this.pauseStart = 0;
@@ -17,10 +18,8 @@ export default class NoteReader {
   }
 
   async init() {
-    this.noteFallHeight = 10;
+    this.noteSpawnHeight = 5;
     document.addEventListener('visibilitychange', this.#onVisibilityChange.bind(this));
-    this.loadTrack(this.track);
-    this.start();
   }
 
   #onVisibilityChange() {
@@ -32,6 +31,7 @@ export default class NoteReader {
   }
 
   loadTrack(track) {
+    this.track = track;
     this.bpm = track.bpm;
     this.signature = track.signature;
     this.notesByBeat = track.notes;
@@ -46,12 +46,13 @@ export default class NoteReader {
 
   start() {
     this.startTime = performance.now();
+    this.hasStarted = true;
     this.isRunning = true;
     this.isPaused = false;
   }
 
   pause() {
-    if (!this.isPaused) {
+    if (!this.isPaused && this.hasStarted) {
       this.isPaused = true;
       this.isRunning = false
       this.pauseStart = performance.now();
@@ -59,7 +60,7 @@ export default class NoteReader {
   }
 
   resume() {
-    if (this.isPaused) {
+    if (this.isPaused && this.hasStarted) {
       this.isPaused = false;
       this.isRunning = true
       this.totalPausedDuration += performance.now() - this.pauseStart;
@@ -108,7 +109,7 @@ export default class NoteReader {
   spawnNote(instrument) {
     const drum = this.drumsMap.get(instrument);
     const x = drum.position.x;
-    const y = drum.position.y + this.noteFallHeight;
+    const y = drum.position.y + this.noteSpawnHeight;
     const z = drum.position.z;
     const position = [x, y, z];
     const note = this.three.initNote(position, drum);

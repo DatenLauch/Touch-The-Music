@@ -3,19 +3,21 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import Audio from '/src/js/Audio';
 
 export default class Three {
-    constructor() {
+    constructor(score) {
         this.renderer = null;
         this.camera = null;
         this.scene = null;
         this.directionalLight = null;
         this.ambientLight = null;
         this.audio = null;
+        this.score = score;
         this.gltfloader = null;
         this.noteModel = null;
         this.handModel = null;
         this.hands = [];
         this.drums = new Map;
         this.collidingObjects = new Set();
+        this.hitLeniency = 0;
     }
 
     async init() {
@@ -44,6 +46,7 @@ export default class Three {
 
         this.noteModel = await this.#loadGLTFModel('src/assets/models/note/note.gltf');
         this.#initDrums();
+        this.hitLeniency = 0.25;
     }
 
     #onWindowResize() {
@@ -150,15 +153,15 @@ export default class Three {
         note.drum = drum;
         note.name = drum.name;
         note.position.set(...position);
-        note.scale.set(2, 2, 2);
         note.onCollision = (collider) => {
         };
         note.onCollisionEnd = (collider) => {
-            console.log(this.score);
             note.destroy();
 
         };
         note.destroy = () => {
+            console.log("miss");
+            this.score.processHit("miss");
             note.drum.notes = note.drum.notes.filter(otherNotes => otherNotes.id !== note.id);
             this.scene.remove(note);
             note.traverse((child) => {
@@ -185,10 +188,26 @@ export default class Three {
                     const handOnDrum = this.#checkCollision(hand, drum);
                     if (handOnDrum) {
                         drum.notes.forEach(note => {
-                            const drumHasNote = this.#checkCollision(drum, note);
-                            if (drumHasNote) {
-                                console.log("hit!");
-                                note.destroy();
+                            const noteOnDrum = this.#checkCollision(note, drum);
+                            if (noteOnDrum) {
+                                const positionDifference = note.position.y - drum.position.y;
+                                console.log(positionDifference);
+                                if (Math.abs(positionDifference) < this.hitLeniency) {
+                                    this.score.processHit("perfect");
+                                    console.log("perfect");
+                                    note.destroy();
+                                }
+                                else if (positionDifference > 0) {
+                                    this.score.processHit("early");
+                                    console.log("early");
+                                    note.destroy();
+                                }
+                                else if (positionDifference < 0) {
+                                    this.score.processHit("late");
+                                    console.log("late");
+                                    note.destroy();
+                                }
+
                             }
                         });
                     }

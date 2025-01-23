@@ -1,19 +1,20 @@
 export default class Score {
     constructor() {
-        this.combo = 0;
-        this.score = 0;
         this.earlyValue = 0;
         this.perfectValue = 0;
         this.lateValue = 0;
+
+        this.accuracy = 0;
+        this.combo = 0;
+        this.points = 0;
         this.early = 0;
         this.perfect = 0;
         this.late = 0;
-        this.accuracy = 0;
+        this.totalHits = 0;
     }
 
     init() {
-        this.combo = 0;
-        this.score = 0;
+        this.accuracy = 100;
         this.earlyValue = 100;
         this.perfectValue = 300;
         this.lateValue = 100;
@@ -24,53 +25,56 @@ export default class Score {
             case ("early"):
                 this.early++
                 this.combo++;
-                this.increaseScore(this.earlyValue);
+                this.increasePoints(this.earlyValue);
+                this.calculateAccuracy();
                 break;
 
             case ("perfect"):
                 this.perfect++
                 this.combo++;
-                this.increaseScore(this.perfectValue);
+                this.increasePoints(this.perfectValue);
+                this.calculateAccuracy();
                 break;
 
             case ("late"):
-                thislate++
+                this.thislate++
                 this.combo++;
-                this.increaseScore(this.lateValue);
+                this.increasePoints(this.lateValue);
+                this.calculateAccuracy();
                 break;
 
             case ("miss"):
                 this.miss++
                 this.resetCombo();
+                this.calculateAccuracy();
                 break;
         }
     }
 
     calculateAccuracy() {
-        const totalHits = this.perfect + this.early + this.late + this.miss;
-        if (totalHits === 0) {
-            return 0;
+        this.totalHits = this.perfect + this.early + this.late + this.miss;
+        if (this.totalHits === 0) {
+            this.accuracy = 0;
         }
-        this.accuracy = ((100 * this.perfect) + (33 * this.early) + (33 * this.late)) / totalHits;
-        return accuracy;
+        this.accuracy = ((100 * this.perfect) + (33 * this.early) + (33 * this.late)) / this.totalHits;
     }
 
-    increaseScore(hitValue) {
-        this.score += hitValue * this.combo;
-        return this.score;
+    increasePoints(hitValue) {
+        this.points += hitValue * this.combo;
     }
 
     resetCombo() {
-        this.combo = 0;r
-        return this.combo;
+        this.combo = 0;
     }
 
     resetAll() {
-        this.score = 0;
+        this.points = 0;
+        this.combo = 0;
         this.early = 0;
         this.perfect = 0;
         this.late = 0;
         this.miss = 0;
-        this.accuracy = 0;
+        this.accuracy = 100;
+        this.totalHits = 0;
     }
 }

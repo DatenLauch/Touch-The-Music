@@ -19,9 +19,16 @@ class App {
     }
 
     async init() {
-        this.three = new Three();
+        this.score = new Score();
+
+        this.three = new Three(this.score);
         await this.three.init();
         this.systems.push(this.three);
+
+        this.noteReader = new NoteReader(this.three, track1);
+        await this.noteReader.init();
+        this.noteReader.loadTrack(track1);
+        this.systems.push(this.noteReader);
 
         /*this.ui = new UI(this.three.scene);
         await this.ui.init();
@@ -30,10 +37,6 @@ class App {
         this.input = new Input(this.ui.testButton, this.three.camera);
         await this.input.init();
         this.systems.push(this.input); */
-
-        this.noteReader = new NoteReader(this.three, track1);
-        await this.noteReader.init();
-        this.systems.push(this.noteReader);
 
         if (navigator.xr) {
             this.xr = new XR(this.three);
@@ -56,12 +59,14 @@ class App {
         if (isArSupported) {
             const arButton = await this.#createButton('Start AR', async () => {
                 await this.xr.initAR();
+                this.noteReader.start();
             });
             container.append(arButton);
         }
         if (isVrSupported) {
             const vrButton = await this.#createButton('Start VR', async () => {
                 await this.xr.initVR();
+                this.noteReader.start();
             });
             container.append(vrButton);
         }

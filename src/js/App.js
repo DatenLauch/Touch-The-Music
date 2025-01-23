@@ -25,7 +25,8 @@ class App {
 
     async init() {
         this.uiManager = new UIManager();
-        this.uiManager.init();
+        await this.uiManager.init();
+        this.systems.push(this.uiManager);
 
         this.audioManager = new AudioManager();
         await this.audioManager.init();
@@ -35,7 +36,7 @@ class App {
 
         this.gltfloader = new GLTFLoader();
 
-        this.threeManager = new ThreeManager(this.uiManager, this.audioManager, this.scoreManager, this.gltfloader, DifficultySettings.easy);
+        this.threeManager = new ThreeManager(this.uiManager, this.audioManager, this.scoreManager, this.gltfloader, DifficultySettings.medium);
         await this.threeManager.init();
         this.systems.push(this.threeManager);
 

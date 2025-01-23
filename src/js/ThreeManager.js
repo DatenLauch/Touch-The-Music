@@ -12,6 +12,7 @@ export default class ThreeManager {
         this.renderer = null;
         this.camera = null;
         this.scene = null;
+        this.hud = null;
         this.directionalLight = null;
         this.ambientLight = null;
         this.noteModel = null;
@@ -27,7 +28,7 @@ export default class ThreeManager {
         document.body.appendChild(this.renderer.domElement);
 
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.set(0, 1.7, 0);
+        this.camera.position.set(0, 1.8, 0);
 
         this.scene = new THREE.Scene();
 
@@ -37,12 +38,13 @@ export default class ThreeManager {
         this.directionalLight.castShadow = true;
         this.directionalLight.position.set(1, 1, 1).normalize();
         this.scene.add(this.directionalLight);
-        
+
         this.handModel = await this.#loadGLTFModel('src/assets/models/hand/hand.gltf');
         this.#initHands();
 
         this.noteModel = await this.#loadGLTFModel('src/assets/models/note/note.gltf');
         this.#initDrums();
+        this.#initHUD();
     }
 
     #onWindowResize() {
@@ -58,6 +60,29 @@ export default class ThreeManager {
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         return renderer;
+    }
+
+    #initHUD() {
+        const accuracyData = this.scoreManager.getAccuracy();
+        const accuracyText = this.uiManager.createText("ACCURACY\n" + accuracyData);
+        accuracyText.position.set(1, 0.8, 0);
+
+        const comboData = this.scoreManager.getCombo()
+        const comboText = this.uiManager.createText("COMBO\n" + comboData);
+        comboText.position.set(-1, 0.8, 0);
+
+        const pointsData = this.scoreManager.getPoints()
+        const pointsText = this.uiManager.createText("SCORE\n" + pointsData);
+        pointsText.position.set(0, 0.8, 0);
+
+        this.hud = new THREE.Group();
+        this.hud.accuracyText = accuracyText;
+        this.hud.comboText = comboText;
+        this.hud.pointsText = pointsText;
+        this.hud.add(accuracyText);
+        this.hud.add(comboText);
+        this.hud.add(pointsText);
+        this.scene.add(this.hud);
     }
 
     async #loadGLTFModel(path) {
@@ -101,18 +126,19 @@ export default class ThreeManager {
 
     #initDrums() {
         const drumConfigs = [
-            { position: [-0.75, 1, -2], color: 0xFF0000, sound: 'snare' },
-            { position: [0.75, 1, -2], color: 0x00FF00, sound: 'kick' },
-            { position: [-2.5, 1, -3], color: 0x0000FF, sound: 'crash' },
-            { position: [2.5, 1, -3], color: 0xFFFF00, sound: 'hihat' },
+            { position: [-0.55, 1.2, -1.75], color: 0x000000, sound: 'snare' },
+            { position: [0.55, 1.2, -1.75], color: 0x000000, sound: 'kick' },
+            { position: [-1.25, 1.2, -1], color: 0x000000, sound: 'crash' },
+            { position: [1.25, 1.2, -1], color: 0x000000, sound: 'hihat' },
         ];
 
         drumConfigs.forEach(({ position, color, sound }) => {
-            const drum = this.#createDrum(0.5, 0.1, 0.1, sound);
+            const drum = this.#createDrum(0.3, 0.2, 0.1, sound);
             drum.position.set(...position);
             drum.outer.material.color.set(color);
             this.drums.set(sound, drum);
             this.scene.add(drum);
+            drum.lookAt(0,0,0);
         });
     }
 
@@ -126,17 +152,23 @@ export default class ThreeManager {
         const outerMaterial = new THREE.MeshStandardMaterial({ color: 0xFF00FF });
         const outer = new THREE.Mesh(outerGeometry, outerMaterial);
 
+        const hitSplash = this.uiManager.createText("");
+        hitSplash.position.set(0, height / 2 + 0.001, height * 2 - 0.05);
+        hitSplash.lookAt(0, 5, (height * 2 + 0.2)); 
+        //hitSplash.rotation.set(Math.PI / 2, 0, 0);
+
         const drum = new THREE.Group();
-        drum.add(outer);
-        drum.add(middle);
+        drum.hitSplash = hitSplash;
         drum.outer = outer;
         drum.middle = middle;
-        drum.sound = sound;
         drum.name = sound;
         drum.notes = [];
+        drum.add(outer);
+        drum.add(middle);
+        drum.add(hitSplash);
         drum.onCollision = (collider) => {
             if (collider.name === ("leftHand" || "rightHand")) {
-                this.audioManager.playSound(drum.sound);
+                this.audioManager.playSound(drum.name);
             }
         };
         drum.onCollisionEnd = (collider) => {
@@ -150,19 +182,19 @@ export default class ThreeManager {
         note.name = "note";
         note.position.set(...position);
         note.boundingBox = this.#extendBoundingBoxDownwards(note);
-        note.helper = new THREE.Box3Helper(note.boundingBox, 0xff0000);
-        this.scene.add(note.helper);
+        //note.helper = new THREE.Box3Helper(note.boundingBox, 0xff0000);
+        //this.scene.add(note.helper);
 
         note.onCollision = (collider) => {
         };
         note.onCollisionEnd = (collider) => {
+            this.#displayHitSplash(note.drum, "miss");
+            this.scoreManager.processHit("miss");
             note.destroy();
-
         };
         note.destroy = () => {
-            this.scene.remove(note.helper);
-            this.scoreManager.processHit("miss");
             note.drum.notes = note.drum.notes.filter(otherNotes => otherNotes.id !== note.id);
+            //this.scene.remove(note.helper);
             this.scene.remove(note);
             note.traverse((child) => {
                 if (child.isMesh) {
@@ -175,12 +207,49 @@ export default class ThreeManager {
             note.onCollision = null;
             note.onCollisionEnd = null;
             note.boundingBox = null;
-            note.helper = null;
+            //note.helper = null;
             note.drum = null;
             note.name = null;
             note = null;
         }
         return note;
+    }
+
+    #displayHitSplash(drum, hit) {
+        //drum.hitSplash.lookAt(this.camera.position);
+        switch (hit) {
+            case "early":
+                drum.hitSplash.text.set({
+                    content: "EARLY",
+                    //fontColor: new THREE.Color(0xFFFF00),
+                });
+                drum.outer.material.color.set(new THREE.Color(0xFFFF00));
+                break;
+
+            case "perfect":
+                drum.hitSplash.text.set({
+                    content: "GOOD",
+                    //fontColor: new THREE.Color(0x00FF00),
+                });
+                drum.outer.material.color.set(new THREE.Color(0x00FF00));
+                break;
+
+            case "late":
+                drum.hitSplash.text.set({
+                    content: "LATE",
+                    //fontColor: new THREE.Color(0xFFFF00),
+                });
+                drum.outer.material.color.set(new THREE.Color(0x0000FF));
+                break;
+
+            case "miss":
+                drum.hitSplash.text.set({
+                    content: "MISS",
+                    //fontColor: new THREE.Color(0xFF0000),
+                });
+                drum.outer.material.color.set(new THREE.Color(0xFF0000));
+                break;
+        }
     }
 
     createQuaternion(x, y, z, w) {
@@ -190,8 +259,8 @@ export default class ThreeManager {
     #extendBoundingBoxDownwards(object) {
         const boundingBox = new THREE.Box3().setFromObject(object);
         const objectHeight = boundingBox.max.y - boundingBox.min.y;
-        boundingBox.max.y += objectHeight / 2;
-        boundingBox.min.y -= objectHeight / 2;
+        boundingBox.max.y += objectHeight / 2; // maybe div by 2?
+        boundingBox.min.y -= objectHeight / 2; // maybe div by 2?
         return boundingBox;
     }
 
@@ -206,26 +275,24 @@ export default class ThreeManager {
                             const noteOnDrum = this.#checkCollision(note, drum);
                             if (noteOnDrum) {
                                 const positionDifference = note.position.y - drum.position.y;
-                                console.log(positionDifference);
                                 if (Math.abs(positionDifference) < this.hitLeniency) {
                                     this.scoreManager.processHit("perfect");
-                                    console.log("perfect");
+                                    this.#displayHitSplash(drum, "perfect");
                                     note.destroy();
                                     return;
                                 }
                                 else if (positionDifference > 0) {
                                     this.scoreManager.processHit("early");
-                                    console.log("early");
+                                    this.#displayHitSplash(drum, "early");
                                     note.destroy();
                                     return;
                                 }
                                 else if (positionDifference < 0) {
                                     this.scoreManager.processHit("late");
-                                    console.log("late");
+                                    this.#displayHitSplash(drum, "late");
                                     note.destroy();
                                     return;
                                 }
-
                             }
                         });
                     }
@@ -233,7 +300,7 @@ export default class ThreeManager {
             });
         }
 
-        
+
         if (this.drums) {
             this.drums.forEach((drum, drumName) => {
                 if (drum.notes) {
@@ -244,6 +311,40 @@ export default class ThreeManager {
                 }
             });
         }
+        this.#updateHUDPosition();
+        this.#updateHUDData();
+    }
+
+    #updateHUDData(){
+        const accuracyData = this.scoreManager.getAccuracy();
+        this.hud.accuracyText.text.set({
+            content: "ACCURACY\n" + accuracyData+ "%",
+        });
+
+        const comboData = this.scoreManager.getCombo();
+        this.hud.comboText.text.set({
+            content: "COMBO\n" + comboData,
+        });
+
+        const pointsData = this.scoreManager.getPoints();
+        this.hud.pointsText.text.set({
+            content: "SCORE\n" + pointsData,
+        });
+
+        
+
+    }
+
+    #updateHUDPosition() {
+        const cameraWorldPosition = new THREE.Vector3();
+        this.camera.getWorldPosition(cameraWorldPosition);
+    
+        const hudDistance = 1; 
+        const hudPosition = new THREE.Vector3(0, 0, -hudDistance);
+        hudPosition.applyQuaternion(this.camera.quaternion);
+    
+        this.hud.position.copy(cameraWorldPosition).add(hudPosition); 
+        this.hud.quaternion.copy(this.camera.quaternion);
     }
 
 
@@ -252,7 +353,7 @@ export default class ThreeManager {
         if (object1.name === "note") {
             box1 = this.#extendBoundingBoxDownwards(object1);
             object1.boundingBox = box1;
-            object1.helper.box.copy(box1);
+            //object1.helper.box.copy(box1);
         }
         else {
             box1 = new THREE.Box3().setFromObject(object1);

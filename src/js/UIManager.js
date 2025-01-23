@@ -5,26 +5,57 @@ import FontImage from '/src/assets/fonts/Roboto-msdf.png';
 
 export default class UIManager {
     constructor() {
+        this.fontJSON = FontJSON;
+        this.fontImage = FontImage;
     }
 
     async init() {
+        this.fontJSON = FontJSON;
+        this.fontImage = FontImage;
     }
 
-    createNewButton(height, width) {
-        const testButton = new ThreeMeshUI.Block({
-            width: width,
-            height: height,
-            depth: 1,
-            padding: 0.05,
-            fontSize: 0.2,
-            fontFamily: FontJSON,
-            fontTexture: FontImage,
-            backgroundColor: new THREE.Color(0x0077ff),
-            backgroundOpacity: 1,
-            justifyContent: "center",
-            alignItems: "center",
+    createButton(text) {
+        const button = new ThreeMeshUI.Block({
+            width: 1,
+            height: 1,
+            color: 0xFF00FF,
+            backgroundColor: new THREE.Color(0x0000ff),
         });
-        testButton.add(new ThreeMeshUI.Text({ content: "3D Test Button" }));
-        return testButton;
+        if (text) {
+            const buttonLabel = this.createText(text);
+            button.add(buttonLabel);
+        }
+        return button;
+    }
+
+    createText(text) {
+        const textMesh = new ThreeMeshUI.Text({
+            width: 0.75,
+            height: 0.25,
+            content: text,
+            wrapText: false,
+            fontFamily: this.fontJSON,
+            fontTexture: this.fontImage,
+            fontSize: 0.1,
+            fontColor: new THREE.Color(0xFFFFFF),
+            outlineWidth: 0.2, 
+            outlineColor: new THREE.Color(0x000000), 
+        });
+
+        const block = new ThreeMeshUI.Block({
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 0.1,
+            backgroundOpacity: 0,
+            width: textMesh.width,
+            height: textMesh.height,
+        });
+        block.text = textMesh;
+        block.add(textMesh);
+        return block;
+    }
+
+    update(deltaTime) {
+        ThreeMeshUI.update();
     }
 }

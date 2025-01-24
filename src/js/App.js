@@ -7,6 +7,7 @@ import ScoreManager from '/src/js/ScoreManager';
 import NoteManager from '/src/js/NoteManager';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Track1 } from './tracks/track1.js';
+import { Track2 } from './tracks/track2.js';
 import { DifficultySettings } from './DifficultySettings.js';
 
 class App {
@@ -40,7 +41,7 @@ class App {
         await this.threeManager.init();
         this.systems.push(this.threeManager);
 
-        this.noteManager = new NoteManager(this.threeManager, Track1);
+        this.noteManager = new NoteManager(this.threeManager, Track2);
         this.noteManager.init();
         this.noteManager.loadTrack(Track1);
         this.systems.push(this.noteManager);

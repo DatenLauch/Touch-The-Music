@@ -2,7 +2,6 @@ import UIManager from '/src/js/UIManager';
 import AudioManager from '/src/js/AudioManager';
 import ThreeManager from '/src/js/ThreeManager.js';
 import XRManager from '/src/js/XRManager.js';
-import InputManager from '/src/js/InputManager';
 import ScoreManager from '/src/js/ScoreManager';
 import NoteManager from '/src/js/NoteManager';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -45,10 +44,6 @@ class App {
         this.noteManager.init();
         this.noteManager.loadTrack(Track1);
         this.systems.push(this.noteManager);
-
-        /*this.inputManager = new InputManager(this.ui.testButton, this.threeManager.camera);
-        await this.inputManager.init();
-        this.systems.push(this.inputManager); */
 
         if (navigator.xr) {
             this.xrManager = new XRManager(this.threeManager);

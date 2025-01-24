@@ -2,7 +2,6 @@ export default class NoteManager {
   constructor(three) {
     this.three = three;
     this.track = {};
-    this.drumsMap = three.drums;
     this.bpm = null;
     this.signature = {};
     this.notesByBeat = {};
@@ -24,9 +23,9 @@ export default class NoteManager {
 
   #onVisibilityChange() {
     if (document.hidden) {
-      this.pause(); 
+      this.pause();
     } else {
-      this.resume(); 
+      this.resume();
     }
   }
 
@@ -87,33 +86,41 @@ export default class NoteManager {
   }
 
   processNotes() {
-    const currentTime = performance.now();
-    const elapsedTime = currentTime - this.startTime - this.totalPausedDuration;
+    if (this.isRunning) {
+      const currentTime = performance.now();
+      const elapsedTime = currentTime - this.startTime - this.totalPausedDuration;
 
-    for (const instrument in this.notesByTimeRemaining) {
-      const remainingTimes = this.notesByTimeRemaining[instrument];
-      if (remainingTimes.length > 0) {
-        const nextNoteTime = remainingTimes[0];
-        if (elapsedTime - nextNoteTime >= 0) {
-          this.spawnNote(instrument);
-          this.notesByTimeRemaining[instrument].shift();
+      for (const instrument in this.notesByTimeRemaining) {
+        const remainingTimes = this.notesByTimeRemaining[instrument];
+        if (remainingTimes.length > 0) {
+          const nextNoteTime = remainingTimes[0];
+          if (elapsedTime - nextNoteTime >= 0) {
+            this.spawnNote(instrument);
+            this.notesByTimeRemaining[instrument].shift();
+          }
         }
       }
-    }
-    if (Object.values(this.notesByTimeRemaining).every(notes => notes.length === 0)) {
-      this.stop();
+      if (Object.values(this.notesByTimeRemaining).every(notes => notes.length === 0)) {
+        this.stop();
+        setTimeout(() => {
+          this.three.end();
+        }, 3000); 
+      }
     }
   }
 
   spawnNote(instrument) {
-    const drum = this.drumsMap.get(instrument);
-    const x = drum.position.x;
-    const y = drum.position.y + this.noteSpawnHeight;
-    const z = drum.position.z;
-    const position = [x, y, z];
-    const note = this.three.initNote(position, drum);
-    drum.notes.push(note);
-    this.three.scene.add(note);
+    if (this.three.drums) {
+      const drum = this.three.drums.get(instrument);
+      const x = drum.position.x;
+      const y = drum.position.y + this.noteSpawnHeight;
+      const z = drum.position.z;
+      const position = [x, y, z];
+      const note = this.three.initNote(position, drum);
+      drum.notes.push(note);
+      this.three.scene.add(note);
+    }
+    else (stop());
   }
 
   stop() {

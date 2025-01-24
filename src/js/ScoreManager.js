@@ -1,7 +1,7 @@
 export default class ScoreManager {
     constructor() {
         this.earlyValue = 0;
-        this.perfectValue = 0;
+        this.goodValue = 0;
         this.lateValue = 0;
 
         this.accuracy = 0;
@@ -9,18 +9,18 @@ export default class ScoreManager {
         this.points = 0;
 
         this.early = 0;
-        this.perfect = 0;
+        this.good = 0;
         this.late = 0;
         this.miss = 0;
 
-        this.highestCombo = 0;
+        this.maxCombo = 0;
         this.totalHits = 0;
     }
 
     init() {
         this.accuracy = 100;
         this.earlyValue = 100;
-        this.perfectValue = 300;
+        this.goodValue = 300;
         this.lateValue = 100;
     }
 
@@ -33,10 +33,10 @@ export default class ScoreManager {
                 this.calculateAccuracy();
                 break;
 
-            case ("perfect"):
-                this.perfect++
+            case ("good"):
+                this.good++
                 this.increaseCombo();
-                this.increasePoints(this.perfectValue);
+                this.increasePoints(this.goodValue);
                 this.calculateAccuracy();
                 break;
 
@@ -56,13 +56,13 @@ export default class ScoreManager {
     }
 
     calculateAccuracy() {
-        this.totalHits = this.early + this.perfect + this.late + this.miss;
+        this.totalHits = this.early + this.good + this.late + this.miss;
 
-        if (this.perfect + this.early + this.late === 0) {
+        if (this.good + this.early + this.late === 0) {
             this.accuracy = 0;
         }
         else {
-            this.accuracy = ((100 * this.perfect) + (33 * this.early) + (33 * this.late)) / this.totalHits;
+            this.accuracy = ((100 * this.good) + (33 * this.early) + (33 * this.late)) / this.totalHits;
             this.accuracy = this.accuracy.toFixed(2);
         }
     }
@@ -78,23 +78,36 @@ export default class ScoreManager {
 
     increaseCombo(){
         this.combo++;
-        if  (this.combo > this.highestCombo) {
-            this.highestCombo = this.combo;
+        if  (this.combo > this.maxCombo) {
+            this.maxCombo = this.combo;
         }
     }
 
     resetCombo() {
-        if (this.combo > this.highestCombo){
-            this.highestCombo = this.combo;
+        if (this.combo > this.maxCombo){
+            this.maxCombo = this.combo;
         }
         this.combo = 0;
+    }
+
+    getScoreData(){
+        const scoreData ={
+            points: this.points,
+            combo: this.maxCombo,
+            accuracy: this.accuracy,
+            early: this.early,
+            good: this.good,
+            late: this.late,
+            miss: this.miss,
+        }
+        return scoreData;
     }
 
     resetAll() {
         this.points = 0;
         this.combo = 0;
         this.early = 0;
-        this.perfect = 0;
+        this.good = 0;
         this.late = 0;
         this.miss = 0;
         this.accuracy = 100;

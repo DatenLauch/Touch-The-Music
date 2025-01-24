@@ -138,7 +138,7 @@ export default class ThreeManager {
             drum.outer.material.color.set(color);
             this.drums.set(sound, drum);
             this.scene.add(drum);
-            drum.lookAt(0,0,0);
+            drum.lookAt(0, 0, 0);
         });
     }
 
@@ -154,7 +154,7 @@ export default class ThreeManager {
 
         const hitSplash = this.uiManager.createText("");
         hitSplash.position.set(0, height / 2 + 0.001, height * 2 - 0.05);
-        hitSplash.lookAt(0, 5, (height * 2 + 0.2)); 
+        hitSplash.lookAt(0, 5, (height * 2 + 0.2));
 
         const drum = new THREE.Group();
         drum.hitSplash = hitSplash;
@@ -171,6 +171,8 @@ export default class ThreeManager {
             }
         };
         drum.onCollisionEnd = (collider) => {
+        }
+        drum.destroy = () => {
         }
         return drum;
     }
@@ -225,7 +227,7 @@ export default class ThreeManager {
                 drum.outer.material.color.set(new THREE.Color(0xFFFF00));
                 break;
 
-            case "perfect":
+            case "good":
                 drum.hitSplash.text.set({
                     content: "GOOD",
                     //fontColor: new THREE.Color(0x00FF00),
@@ -275,8 +277,8 @@ export default class ThreeManager {
                             if (noteOnDrum) {
                                 const positionDifference = note.position.y - drum.position.y;
                                 if (Math.abs(positionDifference) < this.hitLeniency) {
-                                    this.scoreManager.processHit("perfect");
-                                    this.#displayHitSplash(drum, "perfect");
+                                    this.scoreManager.processHit("good");
+                                    this.#displayHitSplash(drum, "good");
                                     note.destroy();
                                     return;
                                 }
@@ -314,10 +316,10 @@ export default class ThreeManager {
         this.#updateHUDData();
     }
 
-    #updateHUDData(){
+    #updateHUDData() {
         const accuracyData = this.scoreManager.getAccuracy();
         this.hud.accuracyText.text.set({
-            content: "ACCURACY\n" + accuracyData+ "%",
+            content: "ACCURACY\n" + accuracyData + "%",
         });
 
         const comboData = this.scoreManager.getCombo();
@@ -330,19 +332,19 @@ export default class ThreeManager {
             content: "SCORE\n" + pointsData,
         });
 
-        
+
 
     }
 
     #updateHUDPosition() {
         const cameraWorldPosition = new THREE.Vector3();
         this.camera.getWorldPosition(cameraWorldPosition);
-    
-        const hudDistance = 1; 
+
+        const hudDistance = 1;
         const hudPosition = new THREE.Vector3(0, 0, -hudDistance);
         hudPosition.applyQuaternion(this.camera.quaternion);
-    
-        this.hud.position.copy(cameraWorldPosition).add(hudPosition); 
+
+        this.hud.position.copy(cameraWorldPosition).add(hudPosition);
         this.hud.quaternion.copy(this.camera.quaternion);
     }
 
@@ -381,5 +383,13 @@ export default class ThreeManager {
 
     render() {
         this.renderer.render(this.scene, this.camera);
+    }
+
+    end() {
+        this.scene.remove(this.hud);
+        const scoreData = this.scoreManager.getScoreData();
+        const endScreen = this.uiManager.createEndScreen(scoreData);
+        endScreen.position.set(0, 3, -3);
+        this.scene.add(endScreen);
     }
 }

@@ -41,7 +41,7 @@ class App {
         await this.threeManager.init();
         this.systems.push(this.threeManager);
 
-        this.noteManager = new NoteManager(this.threeManager, Track2);
+        this.noteManager = new NoteManager(this.threeManager);
         this.noteManager.init();
         this.noteManager.loadTrack(Track1);
         this.systems.push(this.noteManager);

@@ -7,18 +7,16 @@ export const Track2 = Object.freeze({
     notes: {
         kick: [
             1, 2, 4, 5, 
-            7, 8, 10, 11,
-            13, 14
 
         ],
         snare: [
-            3, 6, 9, 12, 15
+            3, 6
         ],
         crash: [
-            15
+            6
         ],
         hihat: [
-            3, 6, 12, 15
+            3, 6,
         ]
     }
 });

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+
 export default class ThreeManager {
     constructor(uiManager, audioManager, scoreManager, gltfLoader, difficultySettings) {
         this.uiManager = uiManager
@@ -39,12 +40,23 @@ export default class ThreeManager {
         this.directionalLight.position.set(1, 1, 1).normalize();
         this.scene.add(this.directionalLight);
 
+        this.skybox = this.#createSkybox();
+        this.scene.add(this.skybox);
+
         this.handModel = await this.#loadGLTFModel('src/assets/models/hand/hand.gltf');
         this.#initHands();
 
         this.noteModel = await this.#loadGLTFModel('src/assets/models/note/note.gltf');
         this.#initDrums();
-        this.#initHUD();
+        this.hud = this.#initHUD();
+
+        this.start();
+    }
+
+    start() {
+        const startScreen = this.uiManager.createStartScreen();
+        startScreen.position.set(0, 3, -3);
+        this.scene.add(startScreen);
     }
 
     #onWindowResize() {
@@ -62,6 +74,19 @@ export default class ThreeManager {
         return renderer;
     }
 
+    #createSkybox() {
+        const textureLoader = new THREE.TextureLoader();
+        const texture = textureLoader.load("./src/assets/images/milky-way-2k.png");
+        const geometry = new THREE.SphereGeometry(50, 50, 50);
+        const material = new THREE.MeshBasicMaterial({
+            map: texture,
+            side: THREE.BackSide,
+            color: 0xFFFFFF
+        });
+        const skybox = new THREE.Mesh(geometry, material);
+        return skybox;
+    }
+
     #initHUD() {
         const accuracyData = this.scoreManager.getAccuracy();
         const accuracyText = this.uiManager.createText("ACCURACY\n" + accuracyData);
@@ -75,14 +100,15 @@ export default class ThreeManager {
         const pointsText = this.uiManager.createText("SCORE\n" + pointsData);
         pointsText.position.set(0, 0.8, 0);
 
-        this.hud = new THREE.Group();
-        this.hud.accuracyText = accuracyText;
-        this.hud.comboText = comboText;
-        this.hud.pointsText = pointsText;
-        this.hud.add(accuracyText);
-        this.hud.add(comboText);
-        this.hud.add(pointsText);
-        this.scene.add(this.hud);
+        const hud = new THREE.Group();
+        hud.accuracyText = accuracyText;
+        hud.comboText = comboText;
+        hud.pointsText = pointsText;
+        hud.add(accuracyText);
+        hud.add(comboText);
+        hud.add(pointsText);
+        scene.add(this.hud);
+        return hud;
     }
 
     async #loadGLTFModel(path) {

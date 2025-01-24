@@ -5,8 +5,8 @@ import FontImage from '/src/assets/fonts/Roboto-msdf.png';
 
 export default class UIManager {
     constructor() {
-        this.fontJSON = FontJSON;
-        this.fontImage = FontImage;
+        this.fontJSON = null;
+        this.fontImage = null;
     }
 
     async init() {
@@ -55,12 +55,25 @@ export default class UIManager {
         return block;
     }
 
+    createStartScreen(){
+        const startScreenContainer = new ThreeMeshUI.Block({
+            width: 3,
+            height: 2.75,
+            fontFamily: this.fontJSON,
+            fontTexture: this.fontImage,
+            fontColor: new THREE.Color(0xffffff),
+            backgroundOpacity: 0.7,
+        });
+
+        return startScreenContainer;
+    }
+
     createEndScreen(scoreData) {
         const endScreenContainer = new ThreeMeshUI.Block({
             width: 3,
             height: 2.75,
-            fontFamily: FontJSON,
-            fontTexture: FontImage,
+            fontFamily: this.fontJSON,
+            fontTexture: this.fontImage,
             fontColor: new THREE.Color(0xffffff),
             backgroundOpacity: 0.7,
         });
@@ -87,8 +100,8 @@ export default class UIManager {
             backgroundOpacity: 0,
         });
 
-        const performancePanel = this.createPerformanceSection(scoreData);
-        const hitsPanel = this.createHitsSection(scoreData);
+        const performancePanel = this.#createEndScreenPerformanceSection(scoreData);
+        const hitsPanel = this.#createEndScreenHitsSection(scoreData);
 
         endScreenContainer.add(contentContainer);
         contentContainer.add(performancePanel);
@@ -97,7 +110,7 @@ export default class UIManager {
         return endScreenContainer;
     }
 
-    createPerformanceSection(scoreData) {
+    #createEndScreenPerformanceSection(scoreData) {
         const statsPanel = new ThreeMeshUI.Block({
             width: 1.5,
             height: 2.5,
@@ -120,8 +133,8 @@ export default class UIManager {
         return statsPanel;
     }
 
-    createHitsSection(scoreData) {
-        const hitTypesPanel = new ThreeMeshUI.Block({
+    #createEndScreenHitsSection(scoreData) {
+        const hitsPanel = new ThreeMeshUI.Block({
             width: 1.5,
             height: 2.5,
             justifyContent: "center",
@@ -129,7 +142,7 @@ export default class UIManager {
             backgroundOpacity: 0.5,
         });
 
-        hitTypesPanel.add(
+        hitsPanel.add(
             new ThreeMeshUI.Text({
                 content: "\n\nHits\n\n",
                 fontSize: 0.15,
@@ -139,7 +152,7 @@ export default class UIManager {
                 fontSize: 0.12,
             })
         );
-        return hitTypesPanel;
+        return hitsPanel;
     }
 
     update(deltaTime) {

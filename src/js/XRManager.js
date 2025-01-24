@@ -15,6 +15,7 @@ export default class XRManager {
                 optionalFeatures: ['bounded-floor', 'plane-detection', 'hit-test', 'anchors', 'hand-tracking']
             });
             await this.#initSession();
+            this.threeManager.scene.remove(this.threeManager.skybox);
         }
         catch (error) {
             console.error('Error initializing AR session:', error);

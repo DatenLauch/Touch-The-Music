@@ -49,8 +49,8 @@ export default class ThreeManager {
         this.noteModel = await this.#loadGLTFModel('src/assets/models/note/note.gltf');
         this.#initDrums();
         this.hud = this.#initHUD();
-
-        this.start();
+        this.scene.add(this.hud);
+        //this.start();
     }
 
     start() {
@@ -107,7 +107,6 @@ export default class ThreeManager {
         hud.add(accuracyText);
         hud.add(comboText);
         hud.add(pointsText);
-        scene.add(this.hud);
         return hud;
     }
 

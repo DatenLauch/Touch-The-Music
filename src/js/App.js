@@ -42,7 +42,7 @@ class App {
 
         this.noteManager = new NoteManager(this.threeManager);
         this.noteManager.init();
-        this.noteManager.loadTrack(Track1);
+        this.noteManager.loadTrack(Track2);
         this.systems.push(this.noteManager);
 
         if (navigator.xr) {

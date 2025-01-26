@@ -70,8 +70,6 @@ export default class UIManager {
 
     createEndScreen(scoreData) {
         const endScreenContainer = new ThreeMeshUI.Block({
-            width: 3,
-            height: 2.75,
             fontFamily: this.fontJSON,
             fontTexture: this.fontImage,
             fontColor: new THREE.Color(0xffffff),
@@ -95,8 +93,6 @@ export default class UIManager {
         const contentContainer = new ThreeMeshUI.Block({
             contentDirection: "row",
             justifyContent: "space-evenly",
-            width: 3,
-            height: 2.5,
             backgroundOpacity: 0,
         });
 

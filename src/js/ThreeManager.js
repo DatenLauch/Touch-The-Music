@@ -153,10 +153,10 @@ export default class ThreeManager {
 
     #initDrums() {
         const drumConfigs = [
-            { position: [-0.125, 1.4, -0.4], color: 0x000000, sound: 'snare' },
-            { position: [0.125, 1.4, -0.4], color: 0x000000, sound: 'kick' },
-            { position: [-0.375, 1.4, -0.325], color: 0x000000, sound: 'crash' },
-            { position: [0.375, 1.4, -0.325], color: 0x000000, sound: 'hihat' },
+            { position: [-0.15, 1.0, -0.7], color: 0x000000, sound: 'snare' },
+            { position: [0.15, 1.0, -0.7], color: 0x000000, sound: 'kick' },
+            { position: [-0.425, 1.0, -0.6], color: 0x000000, sound: 'crash' },
+            { position: [0.425, 1.0, -0.6], color: 0x000000, sound: 'hihat' },
         ];
 
         drumConfigs.forEach(({ position, color, sound }) => {
@@ -438,7 +438,7 @@ export default class ThreeManager {
         this.scene.remove(this.hud);
         const scoreData = this.scoreManager.getScoreData();
         this.endScreen = this.uiManager.createEndScreen(scoreData);
-        this.endScreen.position.set(0, 2, -1);
+        this.endScreen.position.set(0, 1.6, -1);
         this.scene.add(this.endScreen);
     }
 }

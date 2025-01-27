@@ -45,7 +45,7 @@ class App {
         await this.threeManager.init();
         this.requiresUpdates.push(this.threeManager);
 
-        
+
         if (navigator.xr) {
             this.xrManager = new XRManager(this.threeManager);
             this.requiresUpdates.push(this.xrManager);
@@ -53,8 +53,8 @@ class App {
         }
 
     }
-    
-    #startDemo(){
+
+    #startDemo() {
         requestAnimationFrame(this.update);
         this.noteManager.loadTrack(Track1);
         this.noteManager.start();
@@ -63,10 +63,6 @@ class App {
     async #createXRButtons() {
         const isArSupported = await navigator.xr.isSessionSupported('immersive-ar');
         const isVrSupported = await navigator.xr.isSessionSupported('immersive-vr');
-        let container = null;
-        if (isArSupported || isVrSupported) {
-            container = this.#createXRButtonsContainer();
-        }
         if (isArSupported) {
             const arButton = await this.#createButton('Start AR', async () => {
                 await this.xrManager.initAR();
@@ -81,14 +77,8 @@ class App {
             });
             document.getElementById('Intro').append(vrButton);
         }
-        return container;
     }
 
-    #createXRButtonsContainer() {
-        const container = document.createElement('div');
-        container.classList.add('xr-buttons-container');
-        return container;
-    }
 
     async #createButton(buttonText, onClickHandler) {
         const button = document.createElement('button');

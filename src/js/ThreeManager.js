@@ -1,10 +1,11 @@
 import * as THREE from 'three';
 
 export default class ThreeManager {
-    constructor(uiManager, audioManager, scoreManager, gltfLoader, difficultySettings) {
+    constructor(uiManager, audioManager, scoreManager, noteManager, gltfLoader, difficultySettings) {
         this.uiManager = uiManager
         this.audioManager = audioManager;
         this.scoreManager = scoreManager;
+        this.noteManager = noteManager;
         this.gltfLoader = gltfLoader;
         this.difficultySettings = difficultySettings;
 
@@ -21,6 +22,7 @@ export default class ThreeManager {
         this.hands = [];
         this.drums = new Map;
         this.collidingObjects = new Set();
+        this.endScreen = null;
     }
 
     async init() {
@@ -51,11 +53,6 @@ export default class ThreeManager {
 
         this.hud = this.#initHUD();
         this.scene.add(this.hud);
-    }
-
-    start() {
-        this.noteManager.setThree(this);
-        this.noteManager.start();
     }
 
     #onWindowResize() {
@@ -128,6 +125,7 @@ export default class ThreeManager {
     }
 
     async #initHands() {
+        this.handModel.scale.set(0.3, 0.3, 0.3);
         this.leftHand = this.handModel;
         this.leftHand.name = "leftHand";
         this.leftHand.onCollision = (collider) => {
@@ -136,9 +134,12 @@ export default class ThreeManager {
         };
         this.hands.push(this.leftHand);
         this.scene.add(this.leftHand);
+        this.leftHand.boundingBox = new THREE.Box3().setFromObject(this.leftHand);
+        //this.leftHand.helper = new THREE.Box3Helper(this.leftHand.boundingBox, 0xff0000);
+        //this.scene.add(this.leftHand.helper);
 
         this.rightHand = this.handModel.clone();
-        this.rightHand.scale.x = -1;
+        this.rightHand.scale.x = -0.3;
         this.rightHand.name = "rightHand";
         this.rightHand.onCollision = (collider) => {
         };
@@ -146,14 +147,17 @@ export default class ThreeManager {
         };
         this.hands.push(this.rightHand);
         this.scene.add(this.rightHand);
+        this.rightHand.boundingBox = new THREE.Box3().setFromObject(this.rightHand);
+        //this.rightHand.helper = new THREE.Box3Helper(this.rightHand.boundingBox, 0xff0000);
+        //this.scene.add(this.rightHand.helper);
     }
 
     #initDrums() {
         const drumConfigs = [
-            { position: [-0.55, 1.2, -1.75], color: 0x000000, sound: 'snare' },
-            { position: [0.55, 1.2, -1.75], color: 0x000000, sound: 'kick' },
-            { position: [-1.25, 1.2, -1], color: 0x000000, sound: 'crash' },
-            { position: [1.25, 1.2, -1], color: 0x000000, sound: 'hihat' },
+            { position: [-0.15, 1.4, -0.4], color: 0x000000, sound: 'snare' },
+            { position: [0.15, 1.4, -0.4], color: 0x000000, sound: 'kick' },
+            { position: [-0.35, 1.4, -0.2], color: 0x000000, sound: 'crash' },
+            { position: [0.35, 1.4, -0.2], color: 0x000000, sound: 'hihat' },
         ];
 
         drumConfigs.forEach(({ position, color, sound }) => {
@@ -162,7 +166,7 @@ export default class ThreeManager {
             drum.outer.material.color.set(color);
             this.drums.set(sound, drum);
             this.scene.add(drum);
-            drum.lookAt(0, 0, 0);
+            //drum.lookAt(0, 0, 0);
         });
     }
 
@@ -181,23 +185,28 @@ export default class ThreeManager {
         hitSplash.lookAt(0, 5, (height * 2 + 0.2));
 
         const drum = new THREE.Group();
+        drum.scale.set(0.3, 0.3, 0.3);
+        drum.name = "drum";
+        drum.sound = sound;
         drum.hitSplash = hitSplash;
         drum.outer = outer;
         drum.middle = middle;
-        drum.name = sound;
         drum.notes = [];
         drum.add(outer);
         drum.add(middle);
         drum.add(hitSplash);
         drum.onCollision = (collider) => {
             if ((collider.name === "leftHand" || collider.name === "rightHand")) {
-                this.audioManager.playSound(drum.name);
+                this.audioManager.playSound(drum.sound);
             }
         };
         drum.onCollisionEnd = (collider) => {
         }
         drum.destroy = () => {
         }
+        drum.boundingBox = new THREE.Box3().setFromObject(drum.middle);
+        //drum.helper = new THREE.Box3Helper(drum.boundingBox, 0xff0000);
+        //this.scene.add(drum.helper);
         return drum;
     }
 
@@ -205,6 +214,7 @@ export default class ThreeManager {
         let note = this.noteModel.clone(true);
         note.drum = drum;
         note.name = "note";
+        note.scale.set(0.2, 0.2, 0.2);
         note.position.set(...position);
         note.boundingBox = this.#extendBoundingBoxDownwards(note);
         //note.helper = new THREE.Box3Helper(note.boundingBox, 0xff0000);
@@ -324,8 +334,6 @@ export default class ThreeManager {
                 });
             });
         }
-
-
         if (this.drums) {
             this.drums.forEach((drum, drumName) => {
                 if (drum.notes) {
@@ -375,15 +383,29 @@ export default class ThreeManager {
 
     #checkCollision(object1, object2) {
         let box1;
+        let box2;
         if (object1.name === "note") {
             box1 = this.#extendBoundingBoxDownwards(object1);
             object1.boundingBox = box1;
-            //object1.helper.box.copy(box1);
         }
         else {
             box1 = new THREE.Box3().setFromObject(object1);
         }
-        const box2 = new THREE.Box3().setFromObject(object2);
+
+        if (object2.name === "drum") {
+            box2 = new THREE.Box3().setFromObject(object2.middle);
+            object2.boundingBox = box2;
+        }
+        else {
+            box2 = new THREE.Box3().setFromObject(object2);
+        }
+
+        /*if (object1.helper) {
+            object1.helper.box.copy(box1);
+        }
+        if (object2.helper) {
+            object2.helper.box.copy(box2);
+        }*/
 
         const collides = box1.intersectsBox(box2);
         // unique key to avoid circular onCollision / onCollisionEnd activation.
@@ -412,8 +434,8 @@ export default class ThreeManager {
     end() {
         this.scene.remove(this.hud);
         const scoreData = this.scoreManager.getScoreData();
-        const endScreen = this.uiManager.createEndScreen(scoreData);
-        endScreen.position.set(0, 3, -3);
-        this.scene.add(endScreen);
+        this.endScreen = this.uiManager.createEndScreen(scoreData);
+        this.endScreen.position.set(0, 2, -1);
+        this.scene.add(this.endScreen);
     }
 }

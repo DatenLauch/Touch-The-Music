@@ -36,15 +36,14 @@ class App {
 
         this.gltfloader = new GLTFLoader();
 
-        this.threeManager = new ThreeManager(this.uiManager, this.audioManager, this.scoreManager, this.gltfloader, DifficultySettings.easy);
-
-        this.noteManager = new NoteManager(this.threeManager);
+        this.noteManager = new NoteManager();
         this.noteManager.init();
+        this.noteManager.loadTrack(Track2);
         this.requiresUpdates.push(this.noteManager);
 
+        this.threeManager = new ThreeManager(this.uiManager, this.audioManager, this.scoreManager, this.noteManager, this.gltfloader, DifficultySettings.easy);
         await this.threeManager.init();
         this.requiresUpdates.push(this.threeManager);
-
 
         if (navigator.xr) {
             this.xrManager = new XRManager(this.threeManager);
@@ -56,6 +55,7 @@ class App {
 
     #startDemo() {
         requestAnimationFrame(this.update);
+        this.noteManager.setThree(this.threeManager);
         this.noteManager.loadTrack(Track1);
         this.noteManager.start();
     }
@@ -78,7 +78,6 @@ class App {
             document.getElementById('Intro').append(vrButton);
         }
     }
-
 
     async #createButton(buttonText, onClickHandler) {
         const button = document.createElement('button');

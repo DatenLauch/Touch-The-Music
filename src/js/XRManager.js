@@ -47,8 +47,7 @@ export default class XRManager {
         this.session.removeEventListener('inputsourceschange', this.#onInputSourcesChange);
         this.session.removeEventListener('end', this.#onSessionEnded);
         this.session = null;
-        await this.threeManager.renderer.xr.setSession(this.session);
-        this.threeManager.renderer.xr.enabled = false;
+        await this.threeManager.renderer.xr.setSession(null);
         console.log("XR Session ended: " + event);
     }
 

@@ -14,23 +14,6 @@ export default class UIManager {
         this.fontImage = FontImage;
     }
 
-    createButton(text, onClickHandler) {
-        const button = new ThreeMeshUI.Block({
-            width: 1,
-            height: 1,
-            color: 0xFF00FF,
-            backgroundColor: new THREE.Color(0x0000ff),
-        });
-        if (text) {
-            const buttonLabel = this.createText(text);
-            button.add(buttonLabel);
-        }
-        button.onCick = async () => {
-            await onClickHandler();
-        };
-        return button;
-    }
-
     createText(text) {
         const textMesh = new ThreeMeshUI.Text({
             width: 1,
@@ -58,8 +41,10 @@ export default class UIManager {
         return block;
     }
 
-    createEndScreen(scoreData) {
+    createEndScreen(scoreData, repeatHandler) {
         const endScreenContainer = new ThreeMeshUI.Block({
+            width: 2,
+            height: 1.25,
             fontFamily: this.fontJSON,
             fontTexture: this.fontImage,
             fontColor: new THREE.Color(0xffffff),
@@ -67,14 +52,15 @@ export default class UIManager {
         });
 
         const titleBlock = new ThreeMeshUI.Block({
-            width: 3,
-            height: 0.25,
+            width: 2,
+            height: 0.2,
             justifyContent: "center",
             alignItems: "center",
-            fontSize: 0.2,
+            fontSize: 0.15,
+            backgroundOpacity: 1,
         }).add(
             new ThreeMeshUI.Text({
-                content: "Track Complete!",
+                content: "Track Complete",
             })
         );
 
@@ -82,7 +68,7 @@ export default class UIManager {
 
         const contentContainer = new ThreeMeshUI.Block({
             contentDirection: "row",
-            justifyContent: "space-evenly",
+            justifyContent: "center",
             backgroundOpacity: 0,
         });
 
@@ -92,29 +78,27 @@ export default class UIManager {
         endScreenContainer.add(contentContainer);
         contentContainer.add(performancePanel);
         contentContainer.add(hitsPanel);
-        // could add buttons to repeat?
-        //this.createButton();
-
+        
         return endScreenContainer;
     }
 
     #createEndScreenPerformanceSection(scoreData) {
         const statsPanel = new ThreeMeshUI.Block({
-            width: 1.5,
-            height: 2.5,
+            width: 1,
+            height: 1,
             justifyContent: "center",
             alignItems: "center",
-            backgroundOpacity: 0.5,
+            backgroundOpacity: 0,
         });
 
         statsPanel.add(
             new ThreeMeshUI.Text({
-                content: "\n\nPerformance\n\n",
-                fontSize: 0.15,
+                content: "\n\nPerformance\n",
+                fontSize: 0.1,
             }),
             new ThreeMeshUI.Text({
                 content: "Score\n" + scoreData.points + "\n\n Best Combo\n" + scoreData.combo + "\n\n Accuracy\n" + scoreData.accuracy + "%" + "\n\n\n\n\n",
-                fontSize: 0.12,
+                fontSize: 0.05,
             })
         );
 
@@ -123,21 +107,21 @@ export default class UIManager {
 
     #createEndScreenHitsSection(scoreData) {
         const hitsPanel = new ThreeMeshUI.Block({
-            width: 1.5,
-            height: 2.5,
+            width: 1,
+            height: 1,
             justifyContent: "center",
             alignItems: "center",
-            backgroundOpacity: 0.5,
+            backgroundOpacity: 0,
         });
 
         hitsPanel.add(
             new ThreeMeshUI.Text({
-                content: "\n\nHits\n\n",
-                fontSize: 0.15,
+                content: "\n\nHits\n",
+                fontSize: 0.1,
             }),
             new ThreeMeshUI.Text({
                 content: "Good\n" + scoreData.good + "\n\n Early\n" + scoreData.early + "\n\n Late\n" + scoreData.late + "\n\nMiss\n" + scoreData.miss + "\n\n",
-                fontSize: 0.12,
+                fontSize: 0.05,
             })
         );
         return hitsPanel;

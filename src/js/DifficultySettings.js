@@ -1,18 +1,18 @@
 export const DifficultySettings = Object.freeze({
     easy: {
-        fallSpeed: 0.002,
-        hitLeniency: 0.5,
+        fallSpeed: 0.0003,
+        hitLeniency: 0.1,
     },
     medium: {
-        fallSpeed: 0.004,
-        hitLeniency: 0.4,
+        fallSpeed: 0.0005,
+        hitLeniency: 0.15,
     },
     hard: {
-        fallSpeed: 0.006,
-        hitLeniency: 0.3,
+        fallSpeed: 0.001,
+        hitLeniency: 0.1,
     },
     insane: {
-        fallSpeed: 0.010,
-        hitLeniency: 0.2,
+        fallSpeed: 0.005,
+        hitLeniency: 0.005,
     }
 });

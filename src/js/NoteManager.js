@@ -1,6 +1,6 @@
 export default class NoteManager {
-  constructor(three) {
-    this.three = three;
+  constructor() {
+    this.three = null;
     this.track = {};
     this.bpm = null;
     this.signature = {};
@@ -17,9 +17,13 @@ export default class NoteManager {
     this.timeOut = 0;
   }
 
+  setThree(three){
+    this.three = three;
+  }
+
   init() {
     this.timeOut = 5000;
-    this.noteSpawnHeight = 5;
+    this.noteSpawnHeight = 1;
     document.addEventListener('visibilitychange', this.#onVisibilityChange.bind(this));
   }
 
@@ -46,6 +50,7 @@ export default class NoteManager {
   }
 
   start() {
+    this.notesByTimeRemaining = structuredClone(this.notesByTime);
     this.startTime = performance.now();
     this.hasStarted = true;
     this.isRunning = true;

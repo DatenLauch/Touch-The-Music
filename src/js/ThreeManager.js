@@ -154,10 +154,10 @@ export default class ThreeManager {
 
     #initDrums() {
         const drumConfigs = [
-            { position: [-0.15, 1.4, -0.4], color: 0x000000, sound: 'snare' },
-            { position: [0.15, 1.4, -0.4], color: 0x000000, sound: 'kick' },
-            { position: [-0.35, 1.4, -0.2], color: 0x000000, sound: 'crash' },
-            { position: [0.35, 1.4, -0.2], color: 0x000000, sound: 'hihat' },
+            { position: [-0.125, 1.4, -0.4], color: 0x000000, sound: 'snare' },
+            { position: [0.125, 1.4, -0.4], color: 0x000000, sound: 'kick' },
+            { position: [-0.375, 1.4, -0.325], color: 0x000000, sound: 'crash' },
+            { position: [0.375, 1.4, -0.325], color: 0x000000, sound: 'hihat' },
         ];
 
         drumConfigs.forEach(({ position, color, sound }) => {
@@ -366,6 +366,10 @@ export default class ThreeManager {
 
 
 
+    }
+
+    createVector3(x,y,z){
+        return new THREE.Vector3(x,y,z);
     }
 
     #updateHUDPosition() {

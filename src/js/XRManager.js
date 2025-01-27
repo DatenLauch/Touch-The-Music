@@ -76,27 +76,27 @@ export default class XRManager {
         const handedness = inputSource.handedness;
 
         if (handedness === 'right') {
-            let wristJoint = hand.get('wrist');
-            let wristPose = frame.getJointPose(wristJoint, this.referenceSpace);
+            let palmJoint = hand.get('palm');
+            let palmPose = frame.getJointPose(palmJoint, this.referenceSpace);
 
-            this.threeManager.rightHand.position.x = wristPose.transform.position.x;
-            this.threeManager.rightHand.position.y = wristPose.transform.position.y;
-            this.threeManager.rightHand.position.z = wristPose.transform.position.z;
+            this.threeManager.rightHand.position.x = palmPose.transform.position.x;
+            this.threeManager.rightHand.position.y = palmPose.transform.position.y;
+            this.threeManager.rightHand.position.z = palmPose.transform.position.z;
 
-            const rotation = wristPose.transform.orientation;
+            const rotation = palmPose.transform.orientation;
             const quaternion = this.threeManager.createQuaternion(rotation.x, rotation.y, rotation.z, rotation.w);
             this.threeManager.rightHand.rotation.setFromQuaternion(quaternion);
         }
 
         if (handedness === 'left') {
-            let wristJoint = hand.get('wrist');
-            let wristPose = frame.getJointPose(wristJoint, this.referenceSpace);
+            let palmJoint = hand.get('palm');
+            let palmPose = frame.getJointPose(palmJoint, this.referenceSpace);
 
-            this.threeManager.leftHand.position.x = wristPose.transform.position.x;
-            this.threeManager.leftHand.position.y = wristPose.transform.position.y;
-            this.threeManager.leftHand.position.z = wristPose.transform.position.z;
+            this.threeManager.leftHand.position.x = palmPose.transform.position.x;
+            this.threeManager.leftHand.position.y = palmPose.transform.position.y;
+            this.threeManager.leftHand.position.z = palmPose.transform.position.z;
 
-            const rotation = wristPose.transform.orientation;
+            const rotation = palmPose.transform.orientation;
             const quaternion = this.threeManager.createQuaternion(rotation.x, rotation.y, rotation.z, rotation.w);
             this.threeManager.leftHand.rotation.setFromQuaternion(quaternion);
         }

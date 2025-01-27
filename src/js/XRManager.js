@@ -77,7 +77,7 @@ export default class XRManager {
 
         if (handedness === 'right') {
             let wristJoint = hand.get('wrist');
-            let palmOffset = -0.3;
+            let palmOffset = -0.15;
             let wristPose = frame.getJointPose(wristJoint, this.referenceSpace);
 
             this.threeManager.rightHand.position.x = wristPose.transform.position.x;
@@ -91,7 +91,7 @@ export default class XRManager {
 
         if (handedness === 'left') {
             let wristJoint = hand.get('wrist');
-            let palmOffset = -0.3;
+            let palmOffset = -0.15;
             let wristPose = frame.getJointPose(wristJoint, this.referenceSpace);
 
             this.threeManager.leftHand.position.x = wristPose.transform.position.x;

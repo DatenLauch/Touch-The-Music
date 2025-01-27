@@ -1,11 +1,14 @@
 export default class XRManager {
 
-    constructor(threeManager) {
+    constructor(threeManager, uiManager, noteManager) {
         this.threeManager = threeManager;
+        this.uiManager = uiManager;
+        this.noteManager = noteManager;
         this.session = null;
         this.previousTime = 0;
         this.inputSources = [];
         this.referenceSpace = null;
+        this.hasStarted = false;
     }
 
     async initAR() {
@@ -41,6 +44,8 @@ export default class XRManager {
         this.referenceSpace = await this.session.requestReferenceSpace('local-floor');
         this.session.addEventListener('end', this.#onSessionEnded.bind(this));
         this.session.addEventListener('inputsourceschange', this.#onInputSourcesChange.bind(this));
+        this.noteManager.start();
+        this.session.requestAnimationFrame(this.update.bind(this));
     }
 
     async #onSessionEnded(event) {
@@ -61,14 +66,21 @@ export default class XRManager {
         });
     }
 
-    update(deltaTime, frame) {
-        if (!this.session || !frame) return;
+    update(time, frame) {
+        const deltaTime = time - this.previousTime;
+        this.previousTime = time;
 
         this.inputSources.forEach(inputSource => {
-            if (inputSource.hand) {
+            if (inputSource.hand && frame) {
                 this.#updateHands(inputSource, frame);
             }
         });
+
+        this.threeManager.update(deltaTime);
+        this.noteManager.update(deltaTime);
+        this.uiManager.update(deltaTime);
+        this.threeManager.render();
+        this.session.requestAnimationFrame(this.update.bind(this));
     }
 
     #updateHands(inputSource, frame) {
@@ -82,7 +94,7 @@ export default class XRManager {
 
             this.threeManager.rightHand.position.x = wristPose.transform.position.x;
             this.threeManager.rightHand.position.y = wristPose.transform.position.y;
-            this.threeManager.rightHand.position.z = wristPose.transform.position.z + palmOffset;
+            this.threeManager.rightHand.position.z = wristPose.transform.position.z;
 
             const rotation = wristPose.transform.orientation;
             const quaternion = this.threeManager.createQuaternion(rotation.x, rotation.y, rotation.z, rotation.w);
@@ -96,7 +108,7 @@ export default class XRManager {
 
             this.threeManager.leftHand.position.x = wristPose.transform.position.x;
             this.threeManager.leftHand.position.y = wristPose.transform.position.y;
-            this.threeManager.leftHand.position.z = wristPose.transform.position.z + palmOffset;
+            this.threeManager.leftHand.position.z = wristPose.transform.position.z;
 
             const rotation = wristPose.transform.orientation;
             const quaternion = this.threeManager.createQuaternion(rotation.x, rotation.y, rotation.z, rotation.w);

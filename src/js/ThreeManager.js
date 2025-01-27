@@ -1,11 +1,10 @@
 import * as THREE from 'three';
 
 export default class ThreeManager {
-    constructor(uiManager, audioManager, scoreManager, noteManager, gltfLoader, difficultySettings) {
+    constructor(uiManager, audioManager, scoreManager, gltfLoader, difficultySettings) {
         this.uiManager = uiManager
         this.audioManager = audioManager;
         this.scoreManager = scoreManager;
-        this.noteManager = noteManager;
         this.gltfLoader = gltfLoader;
         this.difficultySettings = difficultySettings;
 

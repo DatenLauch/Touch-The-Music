@@ -24,8 +24,6 @@ export default class UIManager {
             fontTexture: this.fontImage,
             fontSize: 0.1,
             fontColor: new THREE.Color(0xFFFFFF),
-            outlineWidth: 0.2,
-            outlineColor: new THREE.Color(0x000000),
         });
 
         const block = new ThreeMeshUI.Block({

@@ -1,29 +1,66 @@
 body {
     margin: 0;
     padding: 0;
+    overflow: hidden;
+    font-size: 24px;
+    letter-spacing: 2px;
+    color: white;
+    font-family: Arial, sans-serif;
+    background-color: #000000;
+    text-align: center;
+    text-shadow:
+        -1px -1px 3px #000,
+        1px -1px 3px #000,
+        -1px 1px 3px #000,
+        1px 1px 3px #000;
 }
 
 canvas {
     display: block;
 }
 
-button {
-    margin: 10px 0;
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+.game-title {
+    font-size: 38px;
+    letter-spacing: 12px;
+    color: #ffffff;
+    animation: glow 2s infinite alternate;
 }
 
-.xr-buttons-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+@keyframes glow {
+    from {
+        text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+    }
+
+    to {
+        text-shadow: 0 0 25px rgba(0, 255, 255, 1);
+    }
+}
+
+button {
+    cursor: pointer;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: #00ffff;
+    background: #00000030;
+    padding: 12px 24px;
+    border-radius: 50px;
+    border: 2px solid #00ffff;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3), 0 0 30px rgba(0, 255, 255, 0.2);
+    transition: all 0.05s ease;
+}
+
+button:hover {
+    transform: scale(1.05);
+    color: #ffffff;
+    background: #00000030;
+    border: 2px solid #00ffff;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(0, 255, 255, 0.6), 0 0 30px rgba(0, 255, 255, 0.4);
+}
+
+button:active {
+    transform: scale(0.95);
+    color: #ffffff;
+    background: #00000030;
+    border: 2px solid #00ffff;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.6), 0 0 20px rgba(0, 255, 255, 0.4), 0 0 30px rgba(0, 255, 255, 0.2);
 }

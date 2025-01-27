@@ -14,7 +14,7 @@ export default class UIManager {
         this.fontImage = FontImage;
     }
 
-    createButton(text) {
+    createButton(text, onClickHandler) {
         const button = new ThreeMeshUI.Block({
             width: 1,
             height: 1,
@@ -25,6 +25,9 @@ export default class UIManager {
             const buttonLabel = this.createText(text);
             button.add(buttonLabel);
         }
+        button.onCick = async () => {
+            await onClickHandler();
+        };
         return button;
     }
 
@@ -53,19 +56,6 @@ export default class UIManager {
         block.text = textMesh;
         block.add(textMesh);
         return block;
-    }
-
-    createStartScreen(){
-        const startScreenContainer = new ThreeMeshUI.Block({
-            width: 3,
-            height: 2.75,
-            fontFamily: this.fontJSON,
-            fontTexture: this.fontImage,
-            fontColor: new THREE.Color(0xffffff),
-            backgroundOpacity: 0.7,
-        });
-
-        return startScreenContainer;
     }
 
     createEndScreen(scoreData) {
@@ -102,6 +92,8 @@ export default class UIManager {
         endScreenContainer.add(contentContainer);
         contentContainer.add(performancePanel);
         contentContainer.add(hitsPanel);
+        // could add buttons to repeat?
+        //this.createButton();
 
         return endScreenContainer;
     }

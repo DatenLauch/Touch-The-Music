@@ -48,15 +48,14 @@ export default class ThreeManager {
 
         this.noteModel = await this.#loadGLTFModel('src/assets/models/note/note.gltf');
         this.#initDrums();
+
         this.hud = this.#initHUD();
         this.scene.add(this.hud);
-        //this.start();
     }
 
     start() {
-        const startScreen = this.uiManager.createStartScreen();
-        startScreen.position.set(0, 3, -3);
-        this.scene.add(startScreen);
+        this.noteManager.setThree(this);
+        this.noteManager.start();
     }
 
     #onWindowResize() {
@@ -76,7 +75,7 @@ export default class ThreeManager {
 
     #createSkybox() {
         const textureLoader = new THREE.TextureLoader();
-        const texture = textureLoader.load("./src/assets/images/milky-way-2k.png");
+        const texture = textureLoader.load("./src/assets/images/eilenriede-park-2k.png");
         const geometry = new THREE.SphereGeometry(50, 50, 50);
         const material = new THREE.MeshBasicMaterial({
             map: texture,
@@ -285,7 +284,7 @@ export default class ThreeManager {
     #extendBoundingBoxDownwards(object) {
         const boundingBox = new THREE.Box3().setFromObject(object);
         const objectHeight = boundingBox.max.y - boundingBox.min.y;
-        boundingBox.max.y += objectHeight / 2; // maybe div by 2?
+        //boundingBox.max.y += objectHeight / 2; // maybe div by 2?
         boundingBox.min.y -= objectHeight / 2; // maybe div by 2?
         return boundingBox;
     }

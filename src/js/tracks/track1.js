@@ -1,4 +1,6 @@
 export const Track1 = Object.freeze({
+    artist: "datenlauch",
+    title: "long-demo-track1",
     bpm: 60,
     signature: {
         beatsPerMeasure: 4,

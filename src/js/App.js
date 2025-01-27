@@ -18,7 +18,7 @@ class App {
         this.scoreManager = null;
         this.noteManager = null;
         this.xrManager = null;
-        this.systems = [];
+        this.requiresUpdates = [];
         this.previousTime = 0;
         this.update = this.#update.bind(this);
     }
@@ -26,7 +26,7 @@ class App {
     async init() {
         this.uiManager = new UIManager();
         await this.uiManager.init();
-        this.systems.push(this.uiManager);
+        this.requiresUpdates.push(this.uiManager);
 
         this.audioManager = new AudioManager();
         await this.audioManager.init();
@@ -36,24 +36,28 @@ class App {
 
         this.gltfloader = new GLTFLoader();
 
-        this.threeManager = new ThreeManager(this.uiManager, this.audioManager, this.scoreManager, this.gltfloader, DifficultySettings.medium);
-        await this.threeManager.init();
-        this.systems.push(this.threeManager);
+        this.threeManager = new ThreeManager(this.uiManager, this.audioManager, this.scoreManager, this.gltfloader, DifficultySettings.easy);
 
         this.noteManager = new NoteManager(this.threeManager);
         this.noteManager.init();
-        this.noteManager.loadTrack(Track2);
-        this.systems.push(this.noteManager);
+        this.requiresUpdates.push(this.noteManager);
 
+        await this.threeManager.init();
+        this.requiresUpdates.push(this.threeManager);
+
+        
         if (navigator.xr) {
             this.xrManager = new XRManager(this.threeManager);
-            let xrButtonContainer = await this.#createXRButtons();
-            if (xrButtonContainer) {
-                document.body.append(xrButtonContainer);
-            }
-            this.systems.push(this.xrManager);
+            this.requiresUpdates.push(this.xrManager);
+            this.#createXRButtons();
         }
+
+    }
+    
+    #startDemo(){
         requestAnimationFrame(this.update);
+        this.noteManager.loadTrack(Track1);
+        this.noteManager.start();
     }
 
     async #createXRButtons() {
@@ -66,16 +70,16 @@ class App {
         if (isArSupported) {
             const arButton = await this.#createButton('Start AR', async () => {
                 await this.xrManager.initAR();
-                this.noteManager.start();
+                this.#startDemo();
             });
-            container.append(arButton);
+            document.getElementById('Intro').append(arButton);
         }
         if (isVrSupported) {
             const vrButton = await this.#createButton('Start VR', async () => {
                 await this.xrManager.initVR();
-                this.noteManager.start();
+                this.#startDemo();
             });
-            container.append(vrButton);
+            document.getElementById('Intro').append(vrButton);
         }
         return container;
     }
@@ -91,7 +95,6 @@ class App {
         button.innerText = buttonText;
         button.addEventListener('click', async () => {
             await onClickHandler();
-            button.parentElement.remove();
         });
         return button;
     }
@@ -100,7 +103,7 @@ class App {
         const deltaTime = time - this.previousTime;
         this.previousTime = time;
 
-        this.systems.forEach(system => system.update(deltaTime, frame));
+        this.requiresUpdates.forEach(system => system.update(deltaTime, frame));
         this.threeManager.render();
 
         if (this.xrManager?.session) {

@@ -14,9 +14,11 @@ export default class NoteManager {
     this.isPaused = false;
     this.pauseStart = 0;
     this.totalPausedDuration = 0;
+    this.timeOut = 0;
   }
 
   init() {
+    this.timeOut = 5000;
     this.noteSpawnHeight = 5;
     document.addEventListener('visibilitychange', this.#onVisibilityChange.bind(this));
   }
@@ -104,7 +106,7 @@ export default class NoteManager {
         this.stop();
         setTimeout(() => {
           this.three.end();
-        }, 3000); 
+        }, this.timeOut); 
       }
     }
   }

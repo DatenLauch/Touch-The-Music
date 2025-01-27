@@ -89,12 +89,12 @@ export default class XRManager {
 
         if (handedness === 'right') {
             let wristJoint = hand.get('wrist');
-            let palmOffset = -0.15;
+            let palmOffset = 0.15;
             let wristPose = frame.getJointPose(wristJoint, this.referenceSpace);
 
             this.threeManager.rightHand.position.x = wristPose.transform.position.x;
             this.threeManager.rightHand.position.y = wristPose.transform.position.y;
-            this.threeManager.rightHand.position.z = wristPose.transform.position.z;
+            this.threeManager.rightHand.position.z = wristPose.transform.position.z - palmOffset;
 
             const rotation = wristPose.transform.orientation;
             const quaternion = this.threeManager.createQuaternion(rotation.x, rotation.y, rotation.z, rotation.w);
@@ -103,12 +103,12 @@ export default class XRManager {
 
         if (handedness === 'left') {
             let wristJoint = hand.get('wrist');
-            let palmOffset = -0.15;
+            let palmOffset = 0.15;
             let wristPose = frame.getJointPose(wristJoint, this.referenceSpace);
 
             this.threeManager.leftHand.position.x = wristPose.transform.position.x;
             this.threeManager.leftHand.position.y = wristPose.transform.position.y;
-            this.threeManager.leftHand.position.z = wristPose.transform.position.z;
+            this.threeManager.leftHand.position.z = wristPose.transform.position.z - palmOffset;
 
             const rotation = wristPose.transform.orientation;
             const quaternion = this.threeManager.createQuaternion(rotation.x, rotation.y, rotation.z, rotation.w);

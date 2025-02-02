@@ -1,9 +1,8 @@
 # Touch-The-Music
 
-![image](https://github.com/user-attachments/assets/facfd9c7-019e-4355-9ba6-df1456dfe31e)
+![image](https://github.com/user-attachments/assets/246975c8-2900-4ceb-899e-2143ce610b1b)
 
-
-![image](https://github.com/user-attachments/assets/0c278b7c-1d7a-495c-b5fd-e3bed3e5018b)
+![image](https://github.com/user-attachments/assets/16344090-63e8-4f67-a405-9eb04a6bf807)
 
 
 Uses WEBXR and THREE.JS. 

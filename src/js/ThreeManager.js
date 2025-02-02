@@ -1,11 +1,10 @@
 import * as THREE from 'three';
 
 export default class ThreeManager {
-    constructor(uiManager, audioManager, scoreManager, noteManager, gltfLoader, difficultySettings) {
+    constructor(uiManager, audioManager, scoreManager, gltfLoader, difficultySettings) {
         this.uiManager = uiManager
         this.audioManager = audioManager;
         this.scoreManager = scoreManager;
-        this.noteManager = noteManager;
         this.gltfLoader = gltfLoader;
         this.difficultySettings = difficultySettings;
 
@@ -88,11 +87,11 @@ export default class ThreeManager {
     #initHUD() {
         const accuracyData = this.scoreManager.getAccuracy();
         const accuracyText = this.uiManager.createText("ACCURACY\n" + accuracyData);
-        accuracyText.position.set(1.25, 0, 0);
+        accuracyText.position.set(1, 0, 0);
 
         const comboData = this.scoreManager.getCombo()
         const comboText = this.uiManager.createText("COMBO\n" + comboData);
-        comboText.position.set(-1.25, 0, 0);
+        comboText.position.set(-1, 0, 0);
 
         const pointsData = this.scoreManager.getPoints()
         const pointsText = this.uiManager.createText("SCORE\n" + pointsData);
@@ -105,6 +104,8 @@ export default class ThreeManager {
         hud.add(accuracyText);
         hud.add(comboText);
         hud.add(pointsText);
+        hud.scale.set(0.5, 0.5, 0.5);
+        hud.position.set(0, 2, -0.75);
         return hud;
     }
 
@@ -156,10 +157,10 @@ export default class ThreeManager {
 
     #initDrums() {
         const drumConfigs = [
-            { position: [-0.125, 1.4, -0.4], color: 0x000000, sound: 'snare' },
-            { position: [0.125, 1.4, -0.4], color: 0x000000, sound: 'kick' },
-            { position: [-0.375, 1.4, -0.325], color: 0x000000, sound: 'crash' },
-            { position: [0.375, 1.4, -0.325], color: 0x000000, sound: 'hihat' },
+            { position: [-0.15, 1.2, -0.7], color: 0x000000, sound: 'snare' },
+            { position: [0.15, 1.2, -0.7], color: 0x000000, sound: 'kick' },
+            { position: [-0.425, 1.2, -0.6], color: 0x000000, sound: 'crash' },
+            { position: [0.425, 1.2, -0.6], color: 0x000000, sound: 'hihat' },
         ];
 
         drumConfigs.forEach(({ position, color, sound }) => {
@@ -424,7 +425,7 @@ export default class ThreeManager {
         this.scene.remove(this.hud);
         const scoreData = this.scoreManager.getScoreData();
         this.endScreen = this.uiManager.createEndScreen(scoreData);
-        this.endScreen.position.set(0, 1.8, 0.8);
+        this.endScreen.position.set(0, 1.8, -1);
         this.scene.add(this.endScreen);
     }
 }

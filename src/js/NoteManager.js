@@ -1,7 +1,9 @@
+import { Track1 } from './tracks/track1.js';
+
 export default class NoteManager {
   constructor() {
     this.three = null;
-    this.track = {};
+    this.track = Track1;
     this.bpm = null;
     this.signature = {};
     this.notesByBeat = {};
@@ -25,6 +27,7 @@ export default class NoteManager {
     this.timeOut = 5000;
     this.noteSpawnHeight = 1;
     document.addEventListener('visibilitychange', this.#onVisibilityChange.bind(this));
+    this.loadTrack(Track1);
   }
 
   #onVisibilityChange() {

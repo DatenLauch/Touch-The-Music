@@ -18,15 +18,12 @@ class App {
         this.scoreManager = null;
         this.noteManager = null;
         this.xrManager = null;
-        this.requiresUpdates = [];
         this.previousTime = 0;
-        this.update = this.#update.bind(this);
     }
 
     async init() {
         this.uiManager = new UIManager();
         await this.uiManager.init();
-        this.requiresUpdates.push(this.uiManager);
 
         this.audioManager = new AudioManager();
         await this.audioManager.init();
@@ -36,28 +33,21 @@ class App {
 
         this.gltfloader = new GLTFLoader();
 
+        //this.noteManager.loadTrack(Track2);
+
+        this.threeManager = new ThreeManager(this.uiManager, this.audioManager, this.scoreManager, this.gltfloader, DifficultySettings.easy);
+        await this.threeManager.init();
+
         this.noteManager = new NoteManager();
         this.noteManager.init();
-        this.noteManager.loadTrack(Track2);
-        this.requiresUpdates.push(this.noteManager);
+        this.noteManager.setThree(this.threeManager);
 
-        this.threeManager = new ThreeManager(this.uiManager, this.audioManager, this.scoreManager, this.noteManager, this.gltfloader, DifficultySettings.easy);
-        await this.threeManager.init();
-        this.requiresUpdates.push(this.threeManager);
 
         if (navigator.xr) {
-            this.xrManager = new XRManager(this.threeManager);
-            this.requiresUpdates.push(this.xrManager);
+            this.xrManager = new XRManager(this.threeManager, this.uiManager, this.noteManager);
             this.#createXRButtons();
         }
 
-    }
-
-    #startDemo() {
-        requestAnimationFrame(this.update);
-        this.noteManager.setThree(this.threeManager);
-        this.noteManager.loadTrack(Track1);
-        this.noteManager.start();
     }
 
     async #createXRButtons() {
@@ -66,14 +56,12 @@ class App {
         if (isArSupported) {
             const arButton = await this.#createButton('Start AR', async () => {
                 await this.xrManager.initAR();
-                this.#startDemo();
             });
             document.getElementById('Intro').append(arButton);
         }
         if (isVrSupported) {
             const vrButton = await this.#createButton('Start VR', async () => {
                 await this.xrManager.initVR();
-                this.#startDemo();
             });
             document.getElementById('Intro').append(vrButton);
         }
@@ -86,20 +74,6 @@ class App {
             await onClickHandler();
         });
         return button;
-    }
-
-    #update(time, frame) {
-        const deltaTime = time - this.previousTime;
-        this.previousTime = time;
-
-        this.requiresUpdates.forEach(system => system.update(deltaTime, frame));
-        this.threeManager.render();
-
-        if (this.xrManager?.session) {
-            this.xrManager.session.requestAnimationFrame(this.update);
-        }
-        else
-            requestAnimationFrame(this.update);
     }
 }
 

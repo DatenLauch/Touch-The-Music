@@ -5,5 +5,5 @@
 ![image](https://github.com/user-attachments/assets/16344090-63e8-4f67-a405-9eb04a6bf807)
 
 
-Uses WEBXR and THREE.JS. 
+Uses WEBXR, THREE.JS and Three Mesh UI. 
 Build and Tested for the META Quest 3.

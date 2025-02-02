@@ -85,15 +85,15 @@ export default class ThreeManager {
     #initHUD() {
         const accuracyData = this.scoreManager.getAccuracy();
         const accuracyText = this.uiManager.createText("ACCURACY\n" + accuracyData);
-        accuracyText.position.set(1, 1.8, -1);
+        accuracyText.position.set(1, 0, 0);
 
         const comboData = this.scoreManager.getCombo()
         const comboText = this.uiManager.createText("COMBO\n" + comboData);
-        comboText.position.set(-1, 1.8, -1);
+        comboText.position.set(-1, 0, 0);
 
         const pointsData = this.scoreManager.getPoints()
         const pointsText = this.uiManager.createText("SCORE\n" + pointsData);
-        pointsText.position.set(0, 1.8, -1);
+        pointsText.position.set(0, 0, 0);
 
         const hud = new THREE.Group();
         hud.accuracyText = accuracyText;
@@ -102,6 +102,8 @@ export default class ThreeManager {
         hud.add(accuracyText);
         hud.add(comboText);
         hud.add(pointsText);
+        hud.scale.set(0.3, 0.3, 0.3);
+        hud.position.set(0, 2, -0.35);
         return hud;
     }
 
@@ -343,7 +345,6 @@ export default class ThreeManager {
                 }
             });
         }
-        this.#updateHUDPosition();
         this.#updateHUDData();
     }
 
@@ -367,22 +368,9 @@ export default class ThreeManager {
 
     }
 
-    createVector3(x,y,z){
-        return new THREE.Vector3(x,y,z);
+    createVector3(x, y, z) {
+        return new THREE.Vector3(x, y, z);
     }
-
-    #updateHUDPosition() {
-        const cameraWorldPosition = new THREE.Vector3();
-        this.camera.getWorldPosition(cameraWorldPosition);
-
-        const hudDistance = 1;
-        const hudPosition = new THREE.Vector3(0, 0, -hudDistance);
-        hudPosition.applyQuaternion(this.camera.quaternion);
-
-        this.hud.position.copy(cameraWorldPosition).add(hudPosition);
-        this.hud.quaternion.copy(this.camera.quaternion);
-    }
-
 
     #checkCollision(object1, object2) {
         let box1;

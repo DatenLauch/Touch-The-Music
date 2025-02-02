@@ -102,8 +102,8 @@ export default class ThreeManager {
         hud.add(accuracyText);
         hud.add(comboText);
         hud.add(pointsText);
-        hud.scale.set(0.3, 0.3, 0.3);
-        hud.position.set(0, 2, -0.35);
+        hud.scale.set(0.5, 0.5, 0.5);
+        hud.position.set(0, 2, -0.75);
         return hud;
     }
 
